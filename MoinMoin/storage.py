@@ -190,17 +190,19 @@ class GitMiddleware(Middleware):
                 for entry in commit.stats.files:
                     result = editlog.EditLogLine(_usercache)
                     if entry.endswith('.md'):
-                        result.pagename = wikiutil.unquoteWikiname(entry[:-3])
+                        # result.pagename = wikiutil.unquoteWikiname(entry[:-3])
+                        result.pagename = entry[:-3]
                         result.comment = '' if comment == 'comment' or comment.startswith(
                             'MoinEdited:') else comment
                     else:
                         # case of the attachments
-                        if os.sep in entry:
-                            path, filename = os.path.split(entry)
-                            result.comment = '%s %s' % (filename, str(commit.stats.files[entry]))
-                            result.pagename = wikiutil.unquoteWikiname(path)
-                        else:
-                            continue
+                        # if os.sep in entry:
+                        #     path, filename = os.path.split(entry)
+                        #     result.comment = '%s %s' % (filename, str(commit.stats.files[entry]))
+                        #     result.pagename = wikiutil.unquoteWikiname(path)
+                        # else:
+                        #     continue
+                        continue
 
                     result.ed_time_usecs = wikiutil.timestamp2version(
                         (date - datetime.datetime(1970, 1, 1)).total_seconds())
@@ -213,17 +215,19 @@ class GitMiddleware(Middleware):
                     yield result
 
     def list_pages(self, request):
-        pages = [wikiutil.unquoteWikiname(
-            page[:-3]) for page in os.listdir(self.path) if page.endswith('.md')]
-        return pages
+        # pages = [wikiutil.unquoteWikiname(
+        #     page[:-3]) for page in os.listdir(self.path) if page.endswith('.md')]
+        # return pages
+        return [page[:-3] for page in os.listdir(self.path) if page.endswith('md')]
 
     def import_attachment(self, request, pagename, filepath):
-        pagename_fs = wikiutil.quoteWikinameFS(pagename)
-        self.get_adaptor(request, pagename_fs).import_attachment(filepath)
+        # pagename_fs = wikiutil.quoteWikinameFS(pagename)
+        self.get_adaptor(request, pagename).import_attachment(filepath)
 
     def remove_attachment(self, request, pagename, filename):
-        pagename_fs = wikiutil.quoteWikinameFS(pagename)
-        self.get_adaptor(request, pagename_fs).remove_attachment(filename)
+        # pagename_fs = wikiutil.quoteWikinameFS(pagename)
+        # self.get_adaptor(request, pagename_fs).remove_attachment(filename)
+        self.get_adaptor(request, pagename).remove_attachment(filename)
 
     def get_adaptor(self, request, pagename_fs):
         return GitPageAdaptor(request, pagename_fs, self.path, self.repo)
@@ -233,10 +237,13 @@ class GitPageAdaptor(PageAdaptor):
 
     def __init__(self, request, pagename_fs, path, repo):
         PageAdaptor.__init__(self, request, pagename_fs)
+
         self.repo = repo
         self.path = path
+        # self.filepath = self.path + os.sep + \
+        #     pagename_fs + request.cfg.fs_extension
         self.filepath = self.path + os.sep + \
-            pagename_fs + request.cfg.fs_extension
+            self.pagename + request.cfg.fs_extension
         self.request = request
         self.pagename_fs = pagename_fs
 
@@ -247,7 +254,7 @@ class GitPageAdaptor(PageAdaptor):
             return ''
 
     def getAttachDir(self, check_create=0):
-        attach_path = os.path.join(self.path, self.pagename_fs)
+        attach_path = os.path.join(self.path, '_', self.pagename)
         if check_create and not os.path.isdir(attach_path):
             try:
                 os.makedirs(attach_path)
@@ -441,7 +448,8 @@ class MercurialMiddleware(Middleware):
                 (date - datetime.datetime(1970, 1, 1)).total_seconds())
             result.rev = rev
             result.action = 'SAVE'
-            result.pagename = wikiutil.unquoteWikiname(title)
+            # result.pagename = wikiutil.unquoteWikiname(title)
+            result.pagename = title
             result.addr = ''
             result.hostname = ''
             result.userid = author

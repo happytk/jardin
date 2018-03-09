@@ -49,8 +49,10 @@ def get_middleware_type(request, pagename):
     you can middleware-object from cfg.middlewares[key][0]
     """
     for r in request.cfg.routes:
-        if r.match(wikiutil.quoteWikinameFS(pagename)):
-            logging.debug('get_middleware_type:%s,%s,%s' % (wikiutil.quoteWikinameFS(pagename), request.cfg.routes[r], r.match(wikiutil.quoteWikinameFS(pagename))))
+        # if r.match(wikiutil.quoteWikinameFS(pagename)):
+        if r.match(pagename):
+            # logging.debug('get_middleware_type:%s,%s,%s' % (wikiutil.quoteWikinameFS(pagename), request.cfg.routes[r], r.match(wikiutil.quoteWikinameFS(pagename))))
+            logging.debug('get_middleware_type:%s,%s,%s' % (pagename, request.cfg.routes[r], r.match(pagename)))
             return request.cfg.routes[r]
     raise Exception('Cannot find the Middleware type')
 

@@ -162,8 +162,8 @@ def getFilename(request, pagename, filename):
         @return: complete path/filename of attached file
     """
     if isinstance(filename, unicode):
-        # filename = filename.encode(request.cfg.attachment_charset)
-        filename = wikiutil.quoteWikinameFS(filename)
+        filename = filename.encode(request.cfg.attachment_charset)
+        # filename = wikiutil.quoteWikinameFS(filename)
     return os.path.join(getAttachDir(request, pagename, create=1), filename)
 
 
@@ -214,7 +214,7 @@ def add_attachment(request, pagename, target, filecontent, overwrite=0):
     """
     # replace illegal chars
     target = wikiutil.taintfilename(target)
-    target = wikiutil.quoteWikinameFS(target)
+    # target = wikiutil.quoteWikinameFS(target)
 
     # get directory, and possibly create it
     attach_dir = getAttachDir(request, pagename, create=1)
@@ -248,7 +248,7 @@ def remove_attachment(request, pagename, target):
     """
     # replace illegal chars
     target = wikiutil.taintfilename(target)
-    target = wikiutil.quoteWikinameFS(target)
+    # target = wikiutil.quoteWikinameFS(target)
 
     # get directory, do not create it
     attach_dir = getAttachDir(request, pagename, create=0)
@@ -351,7 +351,8 @@ def _build_filelist(request, pagename, showheader, readonly, mime_type='*'):
         html.append(fmt.bullet_list(1))
         for file in files:
             mt = wikiutil.MimeType(filename=file)
-            fullpath = os.path.join(attach_dir, wikiutil.quoteWikinameFS(file))  # .encode(request.cfg.attachment_charset)
+            # fullpath = os.path.join(attach_dir, wikiutil.quoteWikinameFS(file))  # .encode(request.cfg.attachment_charset)
+            fullpath = os.path.join(attach_dir, file).encode(request.cfg.attachment_charset)
             try:
                 st = os.stat(fullpath)
             except OSError:
@@ -431,8 +432,8 @@ def _build_filelist(request, pagename, showheader, readonly, mime_type='*'):
 def _get_files(request, pagename):
     attach_dir = getAttachDir(request, pagename)
     if os.path.isdir(attach_dir):
-        # files = [fn.decode(request.cfg.attachment_charset) for fn in os.listdir(attach_dir)]
-        files = [wikiutil.unquoteWikiname(fn) for fn in os.listdir(attach_dir)]
+        files = [fn.decode(request.cfg.attachment_charset) for fn in os.listdir(attach_dir)]
+        # files = [wikiutil.unquoteWikiname(fn) for fn in os.listdir(attach_dir)]
         files.sort()
     else:
         files = []
@@ -681,10 +682,15 @@ def move_file(request, pagename, new_pagename, attachment, new_attachment):
 
     newpage = Page(request, new_pagename)
     if newpage.exists(includeDeleted=1) and request.user.may.write(new_pagename) and request.user.may.delete(pagename):
+        # new_attachment_path = os.path.join(getAttachDir(request, new_pagename,
+        #                       create=1), wikiutil.quoteWikinameFS(new_attachment))  # .encode(request.cfg.attachment_charset)
+        # attachment_path = os.path.join(getAttachDir(request, pagename),
+        #                   wikiutil.quoteWikinameFS(attachment))  # .encode(request.cfg.attachment_charset)
+
         new_attachment_path = os.path.join(getAttachDir(request, new_pagename,
-                              create=1), wikiutil.quoteWikinameFS(new_attachment))  # .encode(request.cfg.attachment_charset)
+                              create=1), new_attachment).encode(request.cfg.attachment_charset)
         attachment_path = os.path.join(getAttachDir(request, pagename),
-                          wikiutil.quoteWikinameFS(attachment))  # .encode(request.cfg.attachment_charset)
+                          attachment).encode(request.cfg.attachment_charset)
 
         if os.path.exists(new_attachment_path):
             upload_form(pagename, request,
