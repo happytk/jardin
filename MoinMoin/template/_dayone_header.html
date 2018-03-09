@@ -1,0 +1,7 @@
+<h4>
+	<a href="{{ request.getScriptname() + '/' + entry.pagename }}">
+	Dayone: {{ request.user.getFormattedDateTime(entry.timestamp) }} ({{ entry.journal.prefix }})</a>
+</h4>
+{% if entry.picture %}
+<img class="attachment" src="/{{ prefix }}dayone_photos/{{ entry.picture }}" style="max-width:100%"/>
+{% endif %}

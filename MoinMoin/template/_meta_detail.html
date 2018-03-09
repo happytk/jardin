@@ -1,0 +1,6 @@
+{% set meta_detail = request.page._get_adpt().meta(request) %}
+{% if "nothing to commit" not in meta_detail and meta_detail.strip() | length %}
+<pre style="font-size: 13px; color: gray;">
+{{ meta_detail }}
+</pre>
+{% endif %}

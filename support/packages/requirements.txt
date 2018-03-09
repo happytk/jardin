@@ -1,0 +1,17 @@
+docopt==0.6.2
+dulwich==0.15.0
+Flask==0.10.1
+gitdb==0.6.4
+GitPython==2.0.8
+GitWeb==0.4
+gunicorn==19.6.0
+itsdangerous==0.24
+Jinja2==2.8
+MarkupSafe==0.23
+mercurial==3.7.2
+moin==1.9.8
+redis==2.10.5
+sh==1.9
+smmap==0.9.0
+WebOb==1.6.3
+Werkzeug==0.11.4

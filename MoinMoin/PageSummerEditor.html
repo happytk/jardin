@@ -1,0 +1,124 @@
+
+<!-- include libraries(jQuery, bootstrap, fontawesome) -->
+<script src="//code.jquery.com/jquery-1.9.1.min.js"></script> 
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet"> 
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.1/js/bootstrap.min.js"></script> 
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
+
+<!-- include summernote css/js-->
+<link href="{{ static_url }}/summernote/summernote.css" rel="stylesheet">
+<script src="{{ static_url }}/summernote/summernote.js"></script>
+<script>
+// function sendFile(file, editor, welEditable) {
+//     data = new FormData();
+//     data.append("uploadFile", file);
+//     $.ajax({
+//         data : data,
+//         type : "POST",
+//         url : "/imageUpload",
+//         cache : false,
+//         contentType : false,
+//         processData : false,
+//         success : function(data) {
+//             editor.insertImage(welEditable, data.url);
+//         }
+//     });
+// }
+
+function summernote_fileupload_hdlr(to_upload, path, direct, summernote) {
+    var progressbar_container = $('#progressbar');
+    var progressbar = $('<div>');
+    var progressbar_label = $('<div>', {class:'progress-label'});
+    progressbar.append(progressbar_label);
+    progressbar_container.append(progressbar);
+
+    // var status = $('#status');
+    var xhr = new XMLHttpRequest();
+    xhr.upload.addEventListener('loadstart', function(e1){
+        //status.text('uploading...');
+        progressbar.progressbar({
+                                    max: 100,
+                                    value: false,
+                                    change: function() {
+                                        var v = progressbar.progressbar('value');
+                                        if (v) {
+                                            progressbar_label.text(v + '%'); 
+                                        }
+                                    },
+                                    complete: function() { /*progressbar_label.text('Complete!');*/ },
+                                });
+    });
+    xhr.upload.addEventListener('progress', function(e1){
+        if (progressbar.progressbar('option', 'max') == 0)
+            progressbar.progressbar('option', 'max', 100);
+        progressbar.progressbar('value', parseInt(e1.loaded/e1.total*100));
+    });
+    xhr.onreadystatechange = function(e1) {
+
+        var text;
+        var ext;
+        var uploaded_filename;
+        var attachment_text;
+        var container;
+        var mediatag;
+        var html;
+        var mediatyp;
+        var imgnode;
+
+        // console.log('hello', this.readyState, this.status);
+
+        if (this.readyState == 4)  {
+            if (this.status == 200) {
+                text = this.responseText;//''; //upload complete: ';// + this.responseText;
+                if (text.indexOf('success/') == 0) {
+                    text = text.substring(8, text.length);
+                    ext = text.substring(text.length-4, text.length);
+                    // upload_message = text; //data['src']; //'Image uploaded by ' + data['ip_addr'];
+
+                    uploaded_filename = text;
+                    imgnode = $('<img>', { src: '?action=AttachFile&do=get&target='+uploaded_filename });
+                    console.log(summernote, imgnode, '?action=AttachFile&do=get&target='+uploaded_filename);
+                    summernote.summernote('insertNode', imgnode[0]);
+                } else { /* case of error */
+                    progressbar_label.text(text);
+                    console.log('error', text);
+                }
+            }
+            else {
+                // text = '<font color="red"><b>실패!: code ' + this.status + '</b></font>';
+                // status.html(text);
+                progressbar_label.text('FAIL! ' + to_upload.name + '(code:' + this.status + ')');
+            }
+            // progressbar.progressbar('destroy');
+        }
+        else {
+            progressbar_label.text('FAIL! ' + to_upload.name + '(code:' + this.readyState + ')');
+        }
+    };
+    xhr.open('POST', '/__moinfbp/easy_attach/post?path=' + path + '&filename=' + to_upload.name + '&direct=' + direct, true);
+    xhr.send(to_upload);
+};
+
+
+$(document).ready(function() {
+  var smn = $('#summernote');
+  smn.summernote({
+        height: 300,                 // set editor height
+        minHeight: null,             // set minimum height of editor
+        maxHeight: null,             // set maximum height of editor
+        focus: true,                 // set focus to editable area after initializing summernote
+        onImageUpload : function(files, editor, welEditable) {
+            var v,
+                direct=false
+                ;
+            console.log(files, editor, welEditable);
+
+            for (v = 0; v<files.length; v++) {
+                summernote_fileupload_hdlr(files[v], '{{ attachment_path }}', direct, smn);
+            }
+
+            //sendFile(files[0], editor, welEditable);
+        },
+  });
+});
+</script>

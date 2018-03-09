@@ -1,0 +1,9 @@
+<!-- <a style='cursor:pointer;' onclick='var d = document.getElementById("{{ pagename }}"); if (d.style.display == "") { d.style.display = "none"; } else { d.style.display = ""; }'>
+[dayone]{{ page.get_raw_body()[:30] }}
+</a> -->
+<div class="dayone_journal_entry" id="{{ pagename }}" style="margin-bottom: 2px;">
+	{{ page._get_adpt().header() }}
+	{{ markdown(request, page.get_raw_body()) }}
+	{{ page._get_adpt().footer() }}
+	<!-- <div style="float:right; background-color:#efefef;">{{ page.link_to(request, text='See the source') }}</div> -->
+</div>

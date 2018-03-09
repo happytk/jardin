@@ -1,0 +1,62 @@
+{% macro render_fontface_url(request, webfontname) %}
+
+{% if webfontname.lower().endswith('.css') %}
+<link href="{{ request.cfg.url_prefix_static }}/common/wf/{{ webfontname }}" type="text/css">
+{% elif webfontname %}
+<style type='text/css'>
+    @font-face {
+        font-family: 'webfont';
+        src: url('{{ request.cfg.url_prefix_static }}/common/wf/{{ webfontname }}');
+        {% if webfontname.lower().endswith('.ttf') %}
+        src: url('{{ request.cfg.url_prefix_static }}/common/wf/{{ webfontname }}') format('truetype');
+        {% elif webfontname.lower().endswith('.woff') %}
+        src: url('{{ request.cfg.url_prefix_static }}/common/wf/{{ webfontname }}') format('woff'); /* Pretty Modern Browsers */
+        {% elif webfontname.lower().endswith('.eot') %}
+        src: url('{{ request.cfg.url_prefix_static }}/common/wf/{{ webfontname }}?#iefix') format('embedded-opentype'); /* Pretty Modern Browsers */
+        {% endif %}
+        font-weight: normal;
+        font-style: normal;
+    }
+    *:not(.fa):not(.glyphicon):not(.icon) { font-family: 'webfont', 'Lucida Console', 'AppleGothic' !important;  }
+</style>
+{% endif %}
+
+{% endmacro %}
+
+{% if (is_mobile_preferred or is_mobile) and request.user.mobile_webfont_name not in ('x', '<default>') %}
+{{ render_fontface_url(request, request.user.mobile_webfont_name) }}
+{% elif is_mac and request.user.mac_webfont_name not in ('x', '<default>') %}
+{{ render_fontface_url(request, request.user.mac_webfont_name) }}
+{% elif request.user.webfont_name not in ('x', '<default>') %}
+{{ render_fontface_url(request, request.user.webfont_name) }}
+{% endif %}
+
+<style type="text/css">
+    {% if (is_mobile_preferred or is_mobile)  %}
+    body, textarea, .form-control, pre { font-size: {{ request.user.mobile_font_size or '16' }}px;  }
+    {% endif %}
+
+    {% if request.user.valid and request.user.line_height %}
+    #content { line-height: {{ request.user.line_height }}; }
+    {% endif %}
+
+    .dayone_footer {
+      font-size: 11px;
+      color: gray;
+      text-align: right;
+    }
+    a.http {
+      word-wrap: break-word;
+    }
+    #pagelocation {
+      word-wrap: break-word;
+    }
+
+    {% if (is_mobile_preferred or is_mobile) %}
+    {{ request.user.mobile_usercss }}
+    {% elif is_mac %}
+    {{ request.user.mac_usercss }}
+    {% else %}
+    {{ request.user.usercss }}
+    {% endif %}
+</style>

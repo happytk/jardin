@@ -1,0 +1,16 @@
+syntax: glob
+
+*.pyc
+*_local.py
+__pycache__/*
+nohup.out
+Python27/*
+*.dll
+*.pid
+celerybeat-schedule
+*.log
+@eaDir
+.DS_Store
+*.orig
+bin/static/*
+wiki-sample/data*

@@ -1,0 +1,6 @@
+if [ $# -eq 0 ]
+then
+  python /volume1/moindev/bin/workon.py
+else 
+. `python /volume1/moindev/bin/workon.py $1`
+fi

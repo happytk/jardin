@@ -1,0 +1,10 @@
+<div class="dayone_footer">
+    {% set tags = entry.tags %}
+    {% if tags|length %}
+    tags:
+    {% for tag in tags %}
+    <a href="{{ request.getScriptname() + '/' + tag }}">#{{ tag }}</a>&nbsp;
+    {% endfor %}
+    {% endif %}
+    {{ 'starred' if entry.star else '' }}
+</div>

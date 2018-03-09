@@ -1,0 +1,13 @@
+<!--
+	1. 현재 페이지가 dayone소속이 아니라면
+	2. 현재 storage중의 dayone목록을 찾아서
+	3. 각 stroage의 tag를 검색
+	4. 현재 페이지이름이 tag로 속해있으면 listup
+//-->
+
+<div style='clear:both;'></div>
+{% for html in htmls %}
+	<div id="content">
+		{{ html }}
+	</div>
+{% endfor %}
