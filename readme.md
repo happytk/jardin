@@ -1,3 +1,21 @@
+## requirements
+
+pip install gunicorn
+pip install jinja2
+pip install flask
+pip install gitweb
+pip install gitpython
+pip install dulwich
+
+## ok test (or devserver)
+
+python createapp.py
+
+## runserver
+
+gunicorn createapp:app
+
+
 ## Customized moin19 for a private CMS.
 
 customized features.
