@@ -4,7 +4,7 @@
     Syntax:
 
         To use in a code block:
-    
+
             {{{{#!text_markdown
             <add markdown text here>
             }}}}
@@ -26,7 +26,7 @@ from MoinMoin.parser.text_moin_wiki import Parser as MoinParser
 
 Dependencies = ['user']
 
-def gfm(text, request):
+def gfm(text, request, parser):
     """Processes Markdown according to GitHub Flavored Markdown spec."""
     extractions = {}
 
@@ -71,32 +71,46 @@ def gfm(text, request):
             macro_args = matchobj.group(2)
         except IndexError:
             macro_args = u''
+
+        if macro_args:
+            macro_args = macro_args[1:-1]
         # print macro_name, macro_args
-        return '<u>Moinmoin macro(%s) is not supported yet.</u>' % macro_name.lower()
+        # return '<u>Moinmoin macro(%s) is not supported yet.</u>' % macro_name.lower()
+        from MoinMoin import macro
+        macro_obj = macro.Macro(parser)
+        # call the macro
+        try:
+            return macro_obj.execute(macro_name, macro_args)
+        except ImportError, err:
+            errmsg = unicode(err)
+            if not macro_name in errmsg:
+                raise
+            return errmsg
+
 
     # text = re.sub("<pre>.*?<\/pre>", extract_pre_block, text, flags=re.S)
     # text = re.sub("(^(?! {4}|\t)\w+_\w+_\w[\w_]*)", escape_underscore, text)
     # text = re.sub("^[\w\<][^\n]*\n+", newlines_to_brs, text, flags=re.M)
     # text = re.sub("\{gfm-extraction-([0-9a-f]{32})\}", insert_pre_block, text)
-    # text = re.sub("""<<(\w+)(?:\(.*\))?>>""", moin_macro, text)
+    text = re.sub("""<<(\w+)(\(.*\))?>>""", moin_macro, text)
     # text = re.sub("([A-Z][a-z0-9]+){2,}", wikiword, text)
     text = re.sub("#[^\s#]+", hashtag, text)
 
-    scan_rules = ur'''(?P<word>  # must come AFTER interwiki rule!
-    %(word_rule)s  # CamelCase wiki words
-)''' % {'word_rule': MoinParser.word_rule }
-    scan_re = re.compile(scan_rules, re.UNICODE|re.VERBOSE)
-    text = scan_re.sub(wikiword, text)
+#     scan_rules = ur'''(?P<word>  # must come AFTER interwiki rule!
+#     %(word_rule)s  # CamelCase wiki words
+# )''' % {'word_rule': MoinParser.word_rule }
+#     scan_re = re.compile(scan_rules, re.UNICODE|re.VERBOSE)
+#     text = scan_re.sub(wikiword, text)
 
     return text
 
-def markdown(request, text):
+def markdown(request, text, parser):
     """Processes GFM then converts it to HTML."""
-    text = gfm(text, request)
+    text = gfm(text, request, parser)
     # text = markdown_lib.markdown(text, extensions=['extra', 'toc', 'fenced_code', 'codehilite', 'nl2br', 'wikilinks' 'sane_lists'])
     extensions = ['extra', 'toc', 'fenced_code', 'codehilite', 'nl2br','sane_lists', 'wikilinks']
     extension_configs = {'wikilinks': [
-                                     ('base_url', request.getScriptname() + '/'), 
+                                     ('base_url', request.getScriptname() + '/'),
                                      ('end_url', ''),
                                      ('html_class', 'wiki') ]}
     text = markdown_lib.markdown(text, extensions=extensions, extension_configs=extension_configs)
@@ -113,7 +127,7 @@ class Parser:
         self.raw = raw
         self.request = request
     def format(self, formatter):
-        text = markdown(self.request, self.raw)
+        text = markdown(self.request, self.raw, self)
         try:
            self.request.write(formatter.rawHTML(text))
         except:
