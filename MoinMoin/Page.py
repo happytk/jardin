@@ -1235,7 +1235,12 @@ class WikiPage(object):
                     special = 'missing'
                 elif not request.user.may.read(self.page_name):
                     special = 'denied'
-
+                elif self.page_name.startswith('Category'):
+                    special = 'category'
+                elif self.page_name == 'RecentChanges':
+                    special = 'recent'
+                elif self.page_name == 'TitleIndex':
+                    special = 'index'
 
             # if we have a special page, output it, unless
             #  - we should only output content (this is for say the pagelinks formatter)
@@ -1444,7 +1449,15 @@ class WikiPage(object):
         elif special_type == 'denied':
             page = wikiutil.getLocalizedPage(request, 'PermissionDeniedPage')
             alternative_text = u"'''%s'''" % _('You are not allowed to view this page.')
-
+        elif special_type == 'category':
+            page = wikiutil.getLocalizedPage(request, 'CategoryPage')
+            alternative_text = u"%s" % _('Search Result: %s\n<<FullSearchCached(category:%s)>>.' % (self.page_name, self.page_name))
+        elif special_type == 'recent':
+            page = wikiutil.getLocalizedPage(request, 'RecentChanges')
+            alternative_text = u"%s" % _('<<RecentChanges>>.')
+        elif special_type == 'index':
+            page = wikiutil.getLocalizedPage(request, 'TitleIndex')
+            alternative_text = u"%s" % _('<<TitleIndex>>.')
 
         special_exists = page.exists()
 
