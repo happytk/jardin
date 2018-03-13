@@ -161,9 +161,9 @@ def getFilename(request, pagename, filename):
         @rtype: string (in request.cfg.attachment_charset encoding)
         @return: complete path/filename of attached file
     """
-    if isinstance(filename, unicode):
-        filename = filename.encode(request.cfg.attachment_charset)
-        # filename = wikiutil.quoteWikinameFS(filename)
+    # if isinstance(filename, unicode):
+    #     filename = filename.encode(request.cfg.attachment_charset)
+    #     # filename = wikiutil.quoteWikinameFS(filename)
     return os.path.join(getAttachDir(request, pagename, create=1), filename)
 
 

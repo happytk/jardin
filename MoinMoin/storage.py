@@ -218,7 +218,23 @@ class GitMiddleware(Middleware):
         # pages = [wikiutil.unquoteWikiname(
         #     page[:-3]) for page in os.listdir(self.path) if page.endswith('.md')]
         # return pages
-        return [page[:-3] for page in os.listdir(self.path) if page.endswith('md')]
+        import fnmatch
+        matches = []
+        for root, dirnames, filenames in os.walk(self.path):
+            for filename in fnmatch.filter(filenames, '*.md'):
+                matches.append(os.path.join(root, filename))
+        result = [
+            page[len(self.path)+1:-3]
+            # for page in os.listdir(self.path)
+            for page in matches
+            # if page.endswith('md')
+        ]
+        result = [
+            pagename
+            for pagename in result
+            if not pagename.startswith('_attachments')
+        ]
+        return result
 
     def import_attachment(self, request, pagename, filepath):
         # pagename_fs = wikiutil.quoteWikinameFS(pagename)
@@ -254,7 +270,7 @@ class GitPageAdaptor(PageAdaptor):
             return ''
 
     def getAttachDir(self, check_create=0):
-        attach_path = os.path.join(self.path, '_', self.pagename)
+        attach_path = os.path.join(self.path, '_attachments', self.pagename)
         if check_create and not os.path.isdir(attach_path):
             try:
                 os.makedirs(attach_path)

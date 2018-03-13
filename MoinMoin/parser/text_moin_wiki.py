@@ -239,7 +239,7 @@ class Parser:
     parser_unique = u''
     parser_scan_rule = ur"""
 (?P<parser_end>
-    %s\}\}\}  # in parser/pre, we only look for the end of the parser/pre
+    %s\`\`\`  # in parser/pre, we only look for the end of the parser/pre
 )
 """
 
@@ -248,13 +248,13 @@ class Parser:
     # please be very careful: blanks and # must be escaped with \ !
     scan_rules = ur"""
 (?P<emph_ibb>
-    '''''(?=[^']+''')  # italic on, bold on, ..., bold off
+    \*\*\*(?=[^']+\*\*)  # italic on, bold on, ..., bold off
 )|(?P<emph_ibi>
-    '''''(?=[^']+'')  # italic on, bold on, ..., italic off
+    \*\*\*(?=[^']+\*)  # italic on, bold on, ..., italic off
 )|(?P<emph_ib_or_bi>
-    '{5}(?=[^'])  # italic and bold or bold and italic
+    \*{3}(?=[^'])  # italic and bold or bold and italic
 )|(?P<emph>
-    '{2,3}  # italic or bold
+    \*{1,2}  # italic or bold
 )|(?P<u>
     __ # underline
 )|(?P<small>
@@ -293,14 +293,14 @@ class Parser:
     ,,  # subscript on
     (?P<sub_text>.*?)  # capture the text
     ,,  # off
-)|(?P<tt>
-    \{\{\{  # teletype on
-    (?P<tt_text>.*?)  # capture the text
-    \}\}\}  # off
 )|(?P<tt_bt>
     `  # teletype (using a backtick) on
-    (?P<tt_bt_text>.*?)  # capture the text
+    (?P<tt_bt_text>[^\`]+?)  # capture the text
     `  # off
+)|(?P<tt>
+    \`\`\`  # teletype on
+    (?P<tt_text>.*?)  # capture the text
+    \`\`\`  # off
 )|(?P<interwiki>
     %(interwiki_rule)s  # OtherWiki:PageName
 )|(?P<word>  # must come AFTER interwiki rule!
@@ -325,11 +325,10 @@ class Parser:
     (?:\((?P<macro_args>.*?)\))?  # optionally macro arguments
     >>
 )|(?P<heading>
-    ^(?P<hmarker>=+)\s+  # some === at beginning of line, eat trailing blanks
-    (?P<heading_text>.*?)  # capture heading text
-    \s+(?P=hmarker)\s$  # some === at end of line (matching amount as we have seen), eat blanks
+    ^(?P<hmarker>\#+)\s+  # some === at beginning of line, eat trailing blanks
+    (?P<heading_text>.*?)$  # capture heading text
 )|(?P<parser>
-    \{\{\{  # parser on
+    \`\`\`  # parser on
     (?P<parser_unique>(\{*|\w*))  # either some more {{{{ or some chars to solve the nesting problem
     (?P<parser_line>
      (
@@ -345,8 +344,8 @@ class Parser:
      (?P<parser_nothing>\s*)  # no parser name, only whitespace up to EOL (eat it)
     )$
     # "parser off" detection is done with parser_scan_rule!
-)|(?P<comment>
-    ^\#\#.*$  # src code comment, rest of line
+)|(?P<blockquote>
+    ^\s*[\>]\s+ # blockquote
 )|(?P<ol>
     %(ol_rule)s  # ordered list
 )|(?P<dl>
@@ -430,6 +429,7 @@ class Parser:
         # 'search_parser' == we didn't get a parser yet, still searching for it (was: 1)
         # 'found_parser' == we found a valid parser (was: 2)
         self.in_pre = None
+        self.in_blockquote = 0
 
         self.in_table = 0
         self.inhibit_p = 0 # if set, do not auto-create a <p>aragraph
@@ -444,7 +444,7 @@ class Parser:
     def _user_wiki_rule_repl(self, word, groups):
         return config.user_wiki_rule_formatter(None, self.formatter, word)
 
-    def _close_item(self, result):
+    def _close_item(self, result, check_continue_blockquote=False):
         #result.append("<!-- close item begin -->\n")
         if self.in_table:
             result.append(self.formatter.table(0))
@@ -462,7 +462,11 @@ class Parser:
         if self.in_chat:
             self.in_chat = 0
             result.append(u'</span>')
-        #result.append("<!-- close item end -->\n")
+        if self.in_blockquote:
+            if not check_continue_blockquote:
+                self.in_blockquote = 0
+                result.append(u'</blockquote>')
+            #result.append("<!-- close item end -->\n")
 
     def _u_repl(self, word, groups):
         """Handle underline."""
@@ -523,7 +527,7 @@ class Parser:
 
     def _emph_repl(self, word, groups):
         """Handle emphasis, i.e. '' and '''."""
-        if len(word) == 3:
+        if len(word) == 1:
             self.is_b = not self.is_b
             if self.is_em and self.is_b:
                 self.is_b = 2
@@ -993,6 +997,16 @@ class Parser:
         if self.line_was_empty and not self.first_list_item:
             css_class = 'gap'
         result.append(self.formatter.listitem(1, css_class=css_class))
+        return ''.join(result)
+
+    def _blockquote_repl(self, word, groups):
+        result = []
+        self._close_item(result, check_continue_blockquote=True)
+        if not self.in_blockquote:
+            self.in_blockquote = 1
+            result.append('<blockquote>')
+        else:
+            result.append('<br/>')
         return ''.join(result)
 
     def _ol_repl(self, match, groups):
@@ -1496,8 +1510,8 @@ class Parser:
             # ignore processing instructions
             if self.in_processing_instructions:
                 found = False
-                for pi in ("##", "#format", "#refresh", "#redirect", "#deprecated",
-                           "#pragma", "#form", "#acl", "#language"):
+                for pi in ("<!--##", "<!--#format", "<!--#refresh", "<!--#redirect", "<!--#deprecated",
+                           "<!--#pragma", "<!--#form", "<!--#acl", "<!--#language"):
                     if line.lower().startswith(pi):
                         self.request.write(self.formatter.comment(line))
                         found = True

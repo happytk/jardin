@@ -1229,18 +1229,17 @@ class WikiPage(object):
         special = None
 
         if not send_special:
-
             if special is None:
-                if not page_exists and not body:
-                    special = 'missing'
-                elif not request.user.may.read(self.page_name):
-                    special = 'denied'
-                elif self.page_name.startswith('Category'):
+                if self.page_name.startswith('Category'):
                     special = 'category'
                 elif self.page_name == 'RecentChanges':
                     special = 'recent'
                 elif self.page_name == 'TitleIndex':
                     special = 'index'
+                elif not page_exists and not body:
+                    special = 'missing'
+                elif not request.user.may.read(self.page_name):
+                    special = 'denied'
 
             # if we have a special page, output it, unless
             #  - we should only output content (this is for say the pagelinks formatter)
@@ -1347,8 +1346,7 @@ class WikiPage(object):
             Parser = wikiutil.searchAndImportPlugin(request.cfg, "parser", "plain")
         parser = Parser(body, request, format_args=format_args, **kw)
 
-        # if not (do_cache and self.canUseCache(Parser)):
-        if True:
+        if not (do_cache and self.canUseCache(Parser)):
             self.format(parser)
         else:
             try:
@@ -1524,7 +1522,7 @@ class WikiPage(object):
         @rtype: unicode
         @return: page header
         """
-        header = ['#%s %s' % t for t in self.meta]
+        header = ['<!--#%s %s-->' % t for t in self.meta]
         header = '\n'.join(header)
         if header:
             if length is None:
@@ -2233,4 +2231,5 @@ class RootPage(WikiRootPage):
         #     path = self.getPagePath('pages', use_underlay=1)
         #     underlay = self._listPageInPath(path)
         #     pages.update(underlay)
+        # import pdb; pdb.set_trace()
         return ret_pages

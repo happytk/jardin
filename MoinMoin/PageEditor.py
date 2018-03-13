@@ -724,9 +724,9 @@ Try a different name.""", wiki=True) % (wikiutil.escape(newpagename), )
 
         newpage = PageEditor(request, newpagename)
 
-        pageexists_error = _("""'''A page with the name {{{'%s'}}} already exists.'''
+        pageexists_error = _("""'''A page with the name  already exists.'''
 
-Try a different name.""", wiki=True) % (wikiutil.escape(newpagename), )
+Try a different name.""", wiki=True)
 
         # Check whether a page with the new name already exists
         if newpage.exists(includeDeleted=1):

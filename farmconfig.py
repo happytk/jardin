@@ -5,7 +5,7 @@ wikis = [
     ("wiki_sth",   r"^(http|https)://([0-9a-z\.]+)(:[0-9]+)?/sth/.*$"),
     ("wiki_test",  r"^(http|https)://([0-9a-z\.]+)(:[0-9]+)?/test/.*$"),
     # ("wiki_wecanfly",  r"^(http|https)://([0-9a-z\.]+)(:[0-9]+)?/wecanfly/.*$"),
-    # ("wiki_mei",   r"^(http|https)://([0-9a-z\.]+)(:[0-9]+)?/mei/.*$"),
+    ("wiki_mei",   r"^(http|https)://([0-9a-z\.]+)(:[0-9]+)?/mei/.*$"),
     # ("wiki_erc",   r"^(http|https)://([0-9a-z\.]+)(:[0-9]+)?/erc/.*$"),
     # ("wiki_master",  r"^(http|https)://(localhost|wecanfly.net|192.168.0.4)(:[0-9]+)?/master/.*$"),
     # ("wiki_friends",  r"^(http|https)://(localhost|wecanfly.net|192.168.0.4)(:[0-9]+)?/amb/.*$"),
@@ -81,4 +81,4 @@ class FarmConfig(DefaultConfig):
 
     webfont_default = 'HoonSlimskinnyLWeb.woff'
     mobile_webfont_default = 'HoonSlimskinnyLWeb.woff'
-    default_markup = 'text_markdown'
+    # default_markup = 'text_markdown'

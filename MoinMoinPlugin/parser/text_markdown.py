@@ -19,12 +19,12 @@
 
 """
 
-
 import hashlib, re
 import markdown as markdown_lib
 from MoinMoin.parser.text_moin_wiki import Parser as MoinParser
 
 Dependencies = ['user']
+
 
 def gfm(text, request, parser):
     """Processes Markdown according to GitHub Flavored Markdown spec."""
@@ -87,6 +87,26 @@ def gfm(text, request, parser):
                 raise
             return errmsg
 
+    def _chat_repl(matchobj):
+        word = matchobj.group(1)
+        result = []
+        if word in ('TK', 'tk', 'MEI', 'mei', 'Tk', 'Mei'):
+            # if self.in_chat:
+            #     # self._close_item(result)
+            #     self.in_chat = 0
+            #     result.append(u'</span>')
+            # self.in_chat = 1
+            if word.startswith('t') or word.startswith('T'):
+                result.append('<i class="fa fa-comment font-blue"></i> <span style="background-color:beige;">')
+            elif word.startswith('m') or word.startswith('M'):
+                result.append('<i class="fa fa-comment font-red"></i> <span style="background-color:mistyrose;">')
+            result.append(matchobj.group(2))
+            result.append('</span>')
+        else:
+            result.append(matchobj.group(0))
+
+        return ''.join(result)
+
 
     # text = re.sub("<pre>.*?<\/pre>", extract_pre_block, text, flags=re.S)
     # text = re.sub("(^(?! {4}|\t)\w+_\w+_\w[\w_]*)", escape_underscore, text)
@@ -95,6 +115,7 @@ def gfm(text, request, parser):
     text = re.sub("""<<(\w+)(\(.*\))?>>""", moin_macro, text)
     # text = re.sub("([A-Z][a-z0-9]+){2,}", wikiword, text)
     text = re.sub("#[^\s#]+", hashtag, text)
+    text = re.sub("(TK|MEI|tk|mei|Tk|Mei):(.*)", _chat_repl, text)
 
 #     scan_rules = ur'''(?P<word>  # must come AFTER interwiki rule!
 #     %(word_rule)s  # CamelCase wiki words
@@ -108,11 +129,22 @@ def markdown(request, text, parser):
     """Processes GFM then converts it to HTML."""
     text = gfm(text, request, parser)
     # text = markdown_lib.markdown(text, extensions=['extra', 'toc', 'fenced_code', 'codehilite', 'nl2br', 'wikilinks' 'sane_lists'])
-    extensions = ['extra', 'toc', 'fenced_code', 'codehilite', 'nl2br','sane_lists', 'wikilinks']
-    extension_configs = {'wikilinks': [
-                                     ('base_url', request.getScriptname() + '/'),
-                                     ('end_url', ''),
-                                     ('html_class', 'wiki') ]}
+    extensions = [
+        'extra',
+        'toc',
+        'fenced_code',
+        'codehilite',
+        'nl2br',
+        'sane_lists',
+        'wikilinks',
+    ]
+    extension_configs = {
+        'wikilinks': [
+             ('base_url', request.getScriptname() + '/'),
+             ('end_url', ''),
+             ('html_class', 'wiki'),
+        ]
+    }
     text = markdown_lib.markdown(text, extensions=extensions, extension_configs=extension_configs)
     return text
 
