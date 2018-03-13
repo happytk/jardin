@@ -10,7 +10,7 @@ import MoinMoin.events as ev
 import os
 import codecs
 
-from dulwich.repo import Repo, NotGitRepository
+# from dulwich.repo import Repo, NotGitRepository
 from MoinMoin.Page import get_middleware_type
 from MoinMoin.action.AttachFile import _get_files, getAttachDir
 

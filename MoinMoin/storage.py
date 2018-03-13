@@ -43,7 +43,7 @@ except ImportError:
 
 
 from git import Repo
-from dulwich import porcelain
+# from dulwich import porcelain
 
 from MoinMoin.logfile import editlog
 from MoinMoin import caching

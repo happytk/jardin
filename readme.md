@@ -5,7 +5,6 @@ pip install jinja2
 pip install flask
 pip install gitweb
 pip install gitpython
-pip install dulwich
 
 ## ok test (or devserver)
 
