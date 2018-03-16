@@ -136,7 +136,8 @@ class EditLogLine:
             text = request.formatter.text(info[:idx])
         elif kind == 'anon':
             title = ''
-            text = _('anonymous')
+            # text = _('anonymous')
+            text = self.userid or _('anonymous')
         else:
             raise Exception("unknown EditorData type")
         return (request.formatter.span(1, title=title) +
