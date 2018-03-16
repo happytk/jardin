@@ -357,7 +357,7 @@ Please review the page and save then. Do not save this page as it is!""")
                     loadable_draft = True
                     page_rev = rev
                     draft_timestamp_str = request.user.getFormattedDateTime(draft_timestamp)
-                    draft_message = _(u"'''<<BR>>Your draft based on revision %(draft_rev)d (saved %(draft_timestamp_str)s) can be loaded instead of the current revision %(page_rev)d by using the load draft button - in case you lost your last edit somehow without saving it.''' A draft gets saved for you when you do a preview, cancel an edit or unsuccessfully save.", wiki=True) % locals()
+                    draft_message = _(u"*<<BR>>Your draft based on revision %(draft_rev)d (saved %(draft_timestamp_str)s) can be loaded instead of the current revision %(page_rev)d by using the load draft button - in case you lost your last edit somehow without saving it.* A draft gets saved for you when you do a preview, cancel an edit or unsuccessfully save.", wiki=True) % locals()
 
         # Setup status message
         status = [kw.get('msg', ''), conflict_msg, edit_lock_message, draft_message]
@@ -439,8 +439,8 @@ Please review the page and save then. Do not save this page as it is!""")
 
         if self.cfg.page_license_enabled:
             request.write('<p><em>', _(
-"""By hitting '''%(save_button_text)s''' you put your changes under the %(license_link)s.
-If you don't want that, hit '''%(cancel_button_text)s''' to cancel your changes.""", wiki=True) % {
+"""By hitting *%(save_button_text)s* you put your changes under the %(license_link)s.
+If you don't want that, hit *%(cancel_button_text)s* to cancel your changes.""", wiki=True) % {
                 'save_button_text': save_button_text,
                 'cancel_button_text': cancel_button_text,
                 'license_link': wikiutil.getLocalizedPage(request, self.cfg.page_license_page).link_to(request),
@@ -668,7 +668,7 @@ If you don't want that, hit '''%(cancel_button_text)s''' to cancel your changes.
 
         newpage = PageEditor(request, newpagename)
 
-        pageexists_error = _("""'''A page with the name {{{'%s'}}} already exists.'''
+        pageexists_error = _("""*A page with the name {{{'%s'}}} already exists.*
 
 Try a different name.""", wiki=True) % (wikiutil.escape(newpagename), )
 
@@ -724,7 +724,7 @@ Try a different name.""", wiki=True) % (wikiutil.escape(newpagename), )
 
         newpage = PageEditor(request, newpagename)
 
-        pageexists_error = _("""'''A page with the name  already exists.'''
+        pageexists_error = _("""*A page with the name  already exists.*
 
 Try a different name.""", wiki=True)
 
@@ -749,7 +749,7 @@ Try a different name.""", wiki=True)
             os.rename(oldpath, newpath)
             self.error = None
             # Save page text with a comment about the old name
-            savetext = u"## page was renamed from %s\n%s" % (self.page_name, savetext)
+            savetext = u"<!--# page was renamed from %s -->\n%s" % (self.page_name, savetext)
             newpage.saveText(savetext, 0, comment=comment, extra=self.page_name, action='SAVE/RENAME', notify=False)
             # delete pagelinks
             arena = newpage
@@ -1397,8 +1397,8 @@ class PageLock:
                 # warn user about existing lock
                 result = 1, _(
 """This page was opened for editing or last previewed at %(timestamp)s by %(owner)s.<<BR>>
-'''You should ''refrain from editing'' this page for at least another %(mins_valid)d minute(s),
-to avoid editing conflicts.'''<<BR>>
+*You should ''refrain from editing'' this page for at least another %(mins_valid)d minute(s),
+to avoid editing conflicts.*<<BR>>
 To leave the editor, press the Cancel button.""", wiki=True) % {
                     'timestamp': timestamp, 'owner': owner, 'mins_valid': mins_valid}
 

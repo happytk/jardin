@@ -103,7 +103,7 @@ def execute(pagename, request):
                 offset = 0
             offset = max(min(offset, log_size - 1), 0)
 
-            paging_info_html += f.paragraph(1, css_class="searchstats info-paging-info") + _("Showing page edit history entries from '''%(start_offset)d''' to '''%(end_offset)d''' out of '''%(total_count)d''' entries total.", wiki=True) % {
+            paging_info_html += f.paragraph(1, css_class="searchstats info-paging-info") + _("Showing page edit history entries from *%(start_offset)d* to *%(end_offset)d* out of *%(total_count)d* entries total.", wiki=True) % {
                 'start_offset': log_size - min(log_size, offset + max_count) + 1,
                 'end_offset': log_size - offset,
                 'total_count': log_size,

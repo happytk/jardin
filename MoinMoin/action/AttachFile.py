@@ -329,9 +329,9 @@ def _build_filelist(request, pagename, showheader, readonly, mime_type='*'):
     if files:
         if showheader:
             html.append(fmt.rawHTML(_(
-                "To refer to attachments on a page, use '''{{{attachment:filename}}}''', \n"
+                "To refer to attachments on a page, use *`{{attachment:filename}}`*, \n"
                 "as shown below in the list of files. \n"
-                "Do '''NOT''' use the URL of the {{{[get]}}} link, \n"
+                "Do *NOT* use the URL of the `[get]` link, \n"
                 "since this is subject to change and can break easily.",
                 wiki=True
             )))

@@ -1443,10 +1443,10 @@ class WikiPage(object):
             else:
                 page = wikiutil.getLocalizedPage(request, 'MissingPage')
 
-            alternative_text = u"'''<<Action(action=garden, text=\"%s\")>>'''" % _('Create New Page')
+            alternative_text = u"*<<Action(action=garden, text=\"%s\")>>*" % _('Create New Page')
         elif special_type == 'denied':
             page = wikiutil.getLocalizedPage(request, 'PermissionDeniedPage')
-            alternative_text = u"'''%s'''" % _('You are not allowed to view this page.')
+            alternative_text = u"*%s*" % _('You are not allowed to view this page.')
         elif special_type == 'category':
             page = wikiutil.getLocalizedPage(request, 'CategoryPage')
             alternative_text = u"%s" % _('Search Result: %s\n<<FullSearchCached(category:%s)>>.' % (self.page_name, self.page_name))

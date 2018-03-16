@@ -3,6 +3,8 @@ import re
 import os
 import datetime
 import codecs
+import shutil
+import fnmatch
 
 from git import Actor, GitCommandError
 
@@ -218,7 +220,6 @@ class GitMiddleware(Middleware):
         # pages = [wikiutil.unquoteWikiname(
         #     page[:-3]) for page in os.listdir(self.path) if page.endswith('.md')]
         # return pages
-        import fnmatch
         matches = []
         for root, dirnames, filenames in os.walk(self.path):
             for filename in fnmatch.filter(filenames, '*.md'):
@@ -269,8 +270,11 @@ class GitPageAdaptor(PageAdaptor):
         except UnicodeEncodeError:
             return ''
 
+    def _get_attach_dir(self, pagename):
+        return os.path.join(self.path, '_attachments', pagename)
+
     def getAttachDir(self, check_create=0):
-        attach_path = os.path.join(self.path, '_attachments', self.pagename)
+        attach_path = self._get_attach_dir(self.pagename)
         if check_create and not os.path.isdir(attach_path):
             try:
                 os.makedirs(attach_path)
@@ -317,27 +321,34 @@ class GitPageAdaptor(PageAdaptor):
         # from dulwich.repo import Repo, NotGitRepository
         # request = self.request
 
+        # update the file
         with codecs.open(self.filepath, 'wb', 'utf8') as f:
             f.write(newtext)
 
+        # prepare to commit
         index = self.repo.index
         index.add([self.filepath])
 
-        from git import Actor
-        author = Actor("An author", "author@example.com")
-        committer = Actor("A committer", "committer@example.com")
-        # commit by commit message and author and committer
+        # commit
+        user = self.request.user
+        if user and user.valid and user.id:
+            author = Actor(user.name, user.email)
+            committer = author
+        else:
+            author = Actor("anonymous", "anonymous@moin")
+            committer = author
         ret = index.commit("", author=author, committer=committer)
 
         self.request.theme.add_msg(
-            'Commited to change a text[%s] %s' % (ret.hexsha, pformat(ret.stats.total)), "info")
+            'Commited to change a text[%s] %s' % (ret.hexsha, pformat(ret.stats.total)), "info"
+        )
 
         return True
 
     def import_attachment(self, filepath, copy=False):
 
         if copy:
-            import shutil
+
             dst_filepath = os.path.join(self.getAttachDir(1), os.path.basename(filepath))
             shutil.copyfile(filepath, dst_filepath)
 
@@ -347,11 +358,14 @@ class GitPageAdaptor(PageAdaptor):
         index = self.repo.index
         index.add([filepath])
 
-        from git import Actor
-        author = Actor("An author", "author@example.com")
-        committer = Actor("A committer", "committer@example.com")
-        # commit by commit message and author and committer
-        ret = index.commit("my commit message", author=author, committer=committer)
+        user = self.request.user
+        if user and user.valid and user.id:
+            author = Actor(user.name, user.email)
+            committer = author
+        else:
+            author = Actor("anonymous", "anonymous@moin")
+            committer = author
+        ret = index.commit("moinmoin: new attachment[%s]" % os.path.basename(filepath), author=author, committer=committer)
 
         self.request.theme.add_msg(
             'Commited to import a attachment[%s] %s' % (ret.hexsha, pformat(ret.stats.total)), "info")
@@ -365,33 +379,53 @@ class GitPageAdaptor(PageAdaptor):
     def rename(self, new_pagename_fs):
         index = self.repo.index
 
-        from git import Actor
-        head, tail = os.path.split(self.filepath)
-        index.add([os.path.join(head, new_pagename_fs + '.md')])
+
+        filedir, filename = os.path.split(self.filepath)
+        index.add([os.path.join(filedir, new_pagename_fs + '.md')])
         index.remove([self.filepath])
-        # delete physical files
+
+        # delete old physical files (new file is already spawned)
         os.remove(self.filepath)
 
-        target, tail = os.path.splitext(self.filepath)
-        if os.path.exists(target):
-            for fp in AttachFile._get_files(self.request, self.pagename):
-                index.remove([os.path.join(target, fp)])
-            new_target = os.path.join(head, new_pagename_fs)
-            os.rename(target, new_target)
-            for fp in AttachFile._get_files(self.request, new_pagename_fs):
-                index.add([os.path.join(new_target, fp)])
+        # attachments
+        # att_filepath = os.path.join(
+        #     self.getAttachDir(0),
+        #     os.path.splitext(os.path.basename(self.filepath))[0]
+        # )
+        att_filepath = self.getAttachDir(0)
+        if os.path.exists(att_filepath):
+            index.remove([
+                os.path.join(att_filepath, fp)
+                for fp in AttachFile._get_files(self.request, self.pagename)
+            ])
+            # new_att_filepath = os.path.join(
+            #     self.getAttachDir(0),
+            #     new_pagename_fs
+            # )
+            # new_att_filepath = os.path.join(self.path, '_attachments', new_pagename_fs)
+            new_att_filepath = self._get_attach_dir(new_pagename_fs)
+            os.rename(att_filepath, new_att_filepath)
+            index.add([
+                os.path.join(new_att_filepath, fp)
+                for fp in AttachFile._get_files(self.request, new_pagename_fs)
+            ])
 
-        author = Actor("An author", "author@example.com")
-        committer = Actor("A committer", "committer@example.com")
-        # commit by commit message and author and committer
-        ret = index.commit("renamed", author=author, committer=committer)
+        user = self.request.user
+        if user and user.valid and user.id:
+            author = Actor(user.name, user.email)
+            committer = author
+        else:
+            author = Actor("anonymous", "anonymous@moin")
+            committer = author
+        ret = index.commit(
+            "moinmoin: renamed from " + self.pagename + " to " + new_pagename_fs,
+            author=author,
+            committer=committer
+        )
         self.request.theme.add_msg(
             'Commited to rename[%s] %s' % (ret.hexsha, pformat(ret.stats.total)), "info")
 
-
-
     def delete(self):
-        from git import Actor, GitCommandError
 
         index = self.repo.index
         try:
@@ -403,17 +437,25 @@ class GitPageAdaptor(PageAdaptor):
                 index.remove(fp)
             except GitCommandError: pass
 
-        author = Actor("An author", "author@example.com")
-        committer = Actor("A committer", "committer@example.com")
+        user = self.request.user
+        if user and user.valid and user.id:
+            author = Actor(user.name, user.email)
+            committer = author
+        else:
+            author = Actor("anonymous", "anonymous@moin")
+            committer = author
+
+        # author = Actor("An author", "author@example.com")
+        # committer = Actor("A committer", "committer@example.com")
         # commit by commit message and author and committer
-        ret = index.commit("deleted", author=author, committer=committer)
+        ret = index.commit("moinmoin: deleted the page[%s]." % self.pagename, author=author, committer=committer)
         self.request.theme.add_msg(
             'Commited to remove[%s] %s' % (ret.hexsha, pformat(ret.stats.total)), "info")
 
         # delete physical files
         os.remove(self.filepath)
         if os.path.exists(self.getAttachDir(0)):
-            import shutil
+
             shutil.rmtree(self.getAttachDir(0))
 
     def remove_attachment(self, filename):
@@ -428,11 +470,19 @@ class GitPageAdaptor(PageAdaptor):
             'Target file seems to be not in git-repo: ' + filepath, "warning")
             return
 
-        from git import Actor
-        author = Actor("An author", "author@example.com")
-        committer = Actor("A committer", "committer@example.com")
+        # from git import Actor
+        # author = Actor("An author", "author@example.com")
+        # committer = Actor("A committer", "committer@example.com")
         # commit by commit message and author and committer
-        ret = index.commit("my commit message", author=author, committer=committer)
+        user = self.request.user
+        if user and user.valid and user.id:
+            author = Actor(user.name, user.email)
+            committer = author
+        else:
+            author = Actor("anonymous", "anonymous@moin")
+            committer = author
+
+        ret = index.commit("moinmoin: deleted the attachment[%s]" % (os.path.basename(filepath)), author=author, committer=committer)
         self.request.theme.add_msg(
             'Commited to remove a attachment[%s] %s' % (ret.hexsha, pformat(ret.stats.total)), "info")
 
@@ -440,7 +490,7 @@ class GitPageAdaptor(PageAdaptor):
             os.remove(filepath)
 
         if len(os.listdir(self.getAttachDir(0))) <= 0:
-            import shutil
+
             shutil.rmtree(self.getAttachDir(0))
 
 class MercurialMiddleware(Middleware):

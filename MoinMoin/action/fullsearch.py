@@ -134,7 +134,7 @@ def execute(pagename, request, fieldname='value', titlesearch=0, statistic=0):
             # show info
             if mtime_parsed:
                 # XXX mtime_msg is not shown in some cases
-                mtime_msg = _("(!) Only pages changed since '''%s''' are being displayed!",
+                mtime_msg = _("(!) Only pages changed since *%s* are being displayed!",
                               wiki=True) % request.user.getFormattedDateTime(mtime)
             else:
                 mtime_msg = _('/!\\ The modification date you entered was not '

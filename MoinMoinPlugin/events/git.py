@@ -154,7 +154,6 @@ def handle_git_file_attach(event):
     # filepath = os.path.join(event.request.cfg.data_dir, 'pages', filename)
 
     filepath = os.path.join(getAttachDir(request, pagename), event.filename)
-    import pdb; pdb.set_trace()
     middleware = get_middleware_type(request, pagename)
     request.storage[middleware].import_attachment(request, pagename, filepath)
 
