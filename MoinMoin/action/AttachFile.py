@@ -432,7 +432,11 @@ def _build_filelist(request, pagename, showheader, readonly, mime_type='*'):
 def _get_files(request, pagename):
     attach_dir = getAttachDir(request, pagename)
     if os.path.isdir(attach_dir):
-        files = [fn.decode(request.cfg.attachment_charset) for fn in os.listdir(attach_dir)]
+        files = [
+            # fn.decode(request.cfg.attachment_charset)
+            fn
+            for fn in os.listdir(attach_dir)
+        ]
         # files = [wikiutil.unquoteWikiname(fn) for fn in os.listdir(attach_dir)]
         files.sort()
     else:
