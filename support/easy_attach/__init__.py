@@ -24,36 +24,36 @@ easy_attach_page = flask.Blueprint('easy_attach_page', __name__, template_folder
 
 UNSAFE = re.compile(r'[^a-zA-Z0-9_]+')
 
-def quoteWikinameFS(wikiname): #, charset='utf8'):
-    """ Return file system representation of a Unicode WikiName.
+# def quoteWikinameFS(wikiname): #, charset='utf8'):
+#     """ Return file system representation of a Unicode WikiName.
 
-    Warning: will raise UnicodeError if wikiname can not be encoded using
-    charset. The default value of config.charset, 'utf-8' can encode any
-    character.
+#     Warning: will raise UnicodeError if wikiname can not be encoded using
+#     charset. The default value of config.charset, 'utf-8' can encode any
+#     character.
 
-    @param wikiname: Unicode string possibly containing non-ascii characters
-    @param charset: charset to encode string
-    @rtype: string
-    @return: quoted name, safe for any file system
-    """
-    # filename = wikiname.decode(charset)
-    filename = wikiname
+#     @param wikiname: Unicode string possibly containing non-ascii characters
+#     @param charset: charset to encode string
+#     @rtype: string
+#     @return: quoted name, safe for any file system
+#     """
+#     # filename = wikiname.decode(charset)
+#     filename = wikiname
 
-    quoted = []
-    location = 0
-    for needle in UNSAFE.finditer(filename):
-        # append leading safe stuff
-        quoted.append(filename[location:needle.start()])
-        location = needle.end()
-        # Quote and append unsafe stuff
-        quoted.append('(')
-        for character in needle.group():
-            quoted.append('%02x' % ord(character))
-        quoted.append(')')
+#     quoted = []
+#     location = 0
+#     for needle in UNSAFE.finditer(filename):
+#         # append leading safe stuff
+#         quoted.append(filename[location:needle.start()])
+#         location = needle.end()
+#         # Quote and append unsafe stuff
+#         quoted.append('(')
+#         for character in needle.group():
+#             quoted.append('%02x' % ord(character))
+#         quoted.append(')')
 
-    # append rest of string
-    quoted.append(filename[location:])
-    return ''.join(quoted)
+#     # append rest of string
+#     quoted.append(filename[location:])
+#     return ''.join(quoted)
 
 # ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'zip', 'mp3', 'mp4'])
 # DATA_DIR = '/volume1/moindev/photo_origins'
@@ -226,7 +226,7 @@ def post():
     def _save_direct():
         # f = secure_filename(filename)
         f = filename
-        f = quoteWikinameFS(f)
+        # f = quoteWikinameFS(f)
         target = os.path.join(data_dir, f)
 
         if os.path.isfile(target) or os.path.isdir(target):
@@ -251,7 +251,7 @@ def post():
 
         sha1sum = get_filename(flask.request.data)
         target = '{0}.jpg'.format(sha1sum)
-        target = quoteWikinameFS(target)
+        # target = quoteWikinameFS(target)
         # message = json.dumps({'src': '{0}.jpg'.format(sha1sum),
         #                       'ip_addr': safe_addr(flask.request.access_route[0])})
         try:

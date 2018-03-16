@@ -231,7 +231,8 @@ def get_attachments(pagename, request, attach_dir):
         for file in files:
             mt = wikiutil.MimeType(filename=file)
             base, ext = os.path.splitext(file)
-            fullpath = os.path.join(attach_dir, wikiutil.quoteWikinameFS(file))  # .encode(request.cfg.attachment_charset)
+            # fullpath = os.path.join(attach_dir, wikiutil.quoteWikinameFS(file))  # .encode(request.cfg.attachment_charset)
+            fullpath = os.path.join(attach_dir, file.encode(request.cfg.attachment_charset))
             try:
                 st = os.stat(fullpath)
             except OSError:
@@ -248,7 +249,7 @@ def get_attachments(pagename, request, attach_dir):
         lst = sorted(lst, key=lambda x:x['fmtime'], reverse=True)
         return lst
     else:
-          return []
+        return []
 
 def send_body(pagename, request, editor=False):
     _ = request.getText
