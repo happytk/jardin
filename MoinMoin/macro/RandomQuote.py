@@ -38,7 +38,11 @@ def macro_RandomQuote(macro, pagename=u'FortuneCookies'):
     # !!! TODO: make multi-line quotes possible (optionally split by "----" or something)
     quotes = raw.splitlines()
     quotes = [quote.strip() for quote in quotes]
-    quotes = [quote[2:] for quote in quotes if quote.startswith('* ')]
+    quotes = [
+        quote[2:]
+        for quote in quotes
+        if quote.startswith('* ') or quote.startswith('- ') or quote.startswith('1. ')
+    ]
 
     if not quotes:
         return (macro.formatter.highlight(1) +

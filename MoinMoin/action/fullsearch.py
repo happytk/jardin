@@ -215,7 +215,7 @@ def execute(pagename, request, fieldname='value', titlesearch=0, statistic=0):
         querydict = dict(wikiutil.parseQueryString(request.query_string))
         querydict.update({'titlesearch': 0})
 
-        request.theme.add_msg(_('Your search query {{{"%s"}}} didn\'t return any results. '
+        request.theme.add_msg(_('Your search query `"%s"` didn\'t return any results. '
                 'Please change some terms and refer to HelpOnSearching for '
                 'more information.%s', wiki=True, percent=True) % (
                     ''.join([
