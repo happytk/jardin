@@ -2578,7 +2578,7 @@ def get_processing_instructions(body):
         Returns a list of (pi, restofline) tuples and a string with the rest of the body.
     """
     pi = []
-    while body.startswith('<!--'):
+    while body.startswith('<!--#'):
         try:
             line, body = body.split('\n', 1) # extract first line
         except ValueError:
@@ -2586,7 +2586,7 @@ def get_processing_instructions(body):
             body = ''
 
         # end parsing on empty (invalid) PI
-        if line == "<!--" or not line.endswith('-->'):
+        if line == "<!--#" or not line.endswith('-->'):
             body = line + '\n' + body
             break
 
@@ -2597,7 +2597,7 @@ def get_processing_instructions(body):
         #         comment = ' ' + comment
         #         line = '//%s' % comment
 
-        verb, args = (line[4:-3] + ' ').split(' ', 1) # split at the first blank
+        verb, args = (line[5:-3] + ' ').split(' ', 1) # split at the first blank
         pi.append((verb.lower(), args.strip()))
 
     return pi, body
