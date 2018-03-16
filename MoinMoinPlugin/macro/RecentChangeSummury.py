@@ -33,8 +33,8 @@ def getPageListFromLog (macro, req_year, req_week_number,comments_only):
         year, wn, wd = datetime.isocalendar(datetime.fromtimestamp(time.mktime(line.time_tuple)))
         yw = '%04d%02d' % (year, wn)
 
-        import logging
-        logging.critical(str([year, wn, req_year, req_week_number]))
+        # import logging
+        # logging.critical(str([year, wn, req_year, req_week_number]))
 
         if req_year > 0 and req_week_number > 0:
             if req_week_number == wn and req_year == year:
@@ -66,9 +66,9 @@ def getPageListFromLog (macro, req_year, req_week_number,comments_only):
 
                 if len(comments) > 0 or not comments_only:
                     if p.exists():
-                        ret.append(' * [[%s]] (edited %s) <<HTML(<i class="fa fa-user"></i>)>> %d' % (page, str(edit_cnt), len(userids)))
+                        ret.append(' * [[%s]] (edited %s) <<HTML(<i class="fa fa-user"></i>)>> %s' % (page, str(edit_cnt), ','.join(userids)))
                     else:
-                        ret.append(' * `%s` (edited %s) <<HTML(<i class="fa fa-user"></i>)>> %d' % (page, str(edit_cnt), len(userids)))
+                        ret.append(' * `%s` (edited %s) <<HTML(<i class="fa fa-user"></i>)>> %s' % (page, str(edit_cnt), ','.join(userids)))
                     for comment in comments:
                         ret.append('  * ' + comment)
             """
