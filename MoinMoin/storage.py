@@ -193,6 +193,7 @@ class GitMiddleware(Middleware):
                     result = editlog.EditLogLine(_usercache)
                     if entry[0] == '"' and entry[-1] == '"':
                         entry = entry[1:-1]  # git quotation
+                        entry = entry.decode('utf8')
                     if entry.endswith('.md'):
                         # result.pagename = wikiutil.unquoteWikiname(entry[:-3])
                         result.pagename = entry[:-3]
