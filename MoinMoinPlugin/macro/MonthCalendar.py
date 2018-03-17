@@ -354,7 +354,7 @@ def execute(macro, text):
                     query = {}
                     r, g, b, u = (255, 0, 0, 1)
                     daycontent = daypage.get_raw_body()
-                    header1_re = re.compile(r'^\s*=\s(.*)\s=$', re.MULTILINE) # re.UNICODE
+                    header1_re = re.compile(r'^\s*#\s(.*)$', re.MULTILINE) # re.UNICODE
                     titletext = []
                     for match in header1_re.finditer(daycontent):
                         if match:
