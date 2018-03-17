@@ -1346,7 +1346,8 @@ class WikiPage(object):
             Parser = wikiutil.searchAndImportPlugin(request.cfg, "parser", "plain")
         parser = Parser(body, request, format_args=format_args, **kw)
 
-        if not (do_cache and self.canUseCache(Parser)):
+        if True:
+        # if not (do_cache and self.canUseCache(Parser)):
             self.format(parser)
         else:
             try:
