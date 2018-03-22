@@ -1360,9 +1360,13 @@ class Parser:
         return self.formatter.comment(word)
 
     def _closeP(self):
+        ret = []
+        # if self.in_blockquote:
+        #     self.in_blockquote = 0
+        #     ret.append('</blockquote>')
         if self.formatter.in_p:
-            return self.formatter.paragraph(0)
-        return ''
+            ret.append(self.formatter.paragraph(0))
+        return '\n'.join(ret)
 
     def _macro_repl(self, word, groups):
         """Handle macros."""
@@ -1384,6 +1388,10 @@ class Parser:
         result = []
         lastpos = 0 # absolute position within line
         line_length = len(line)
+
+        # if self.in_blockquote and len(line.strip()) == 0:
+        #     result.append('</blockquote>')
+        #     self.in_blockquote = 0
 
         ###result.append(u'<span class="info">[scan: <tt>"%s"</tt>]</span>' % line)
         while lastpos <= line_length: # it is <=, not <, because we need to process the empty line also
@@ -1537,6 +1545,9 @@ class Parser:
                     if self.formatter.in_p:
                         self.request.write(self.formatter.paragraph(0))
                     self.line_is_empty = 1
+                    if self.in_blockquote:
+                        self.request.write('</blockquote>')
+                        self.in_blockquote = 0
                     continue
 
                 # Check indent level
@@ -1605,6 +1616,7 @@ class Parser:
         if self.in_pre: self.request.write(self.formatter.preformatted(0))
         if self.formatter.in_p: self.request.write(self.formatter.paragraph(0))
         if self.in_table: self.request.write(self.formatter.table(0))
+        if self.in_blockquote: self.request.write('</blockquote>')
 
         if self.wrapping_div_class:
             self.request.write(self.formatter.div(0))
