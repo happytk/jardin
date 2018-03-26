@@ -527,7 +527,7 @@ class Parser:
 
     def _emph_repl(self, word, groups):
         """Handle emphasis, i.e. '' and '''."""
-        if len(word) == 1:
+        if len(word) == 2:
             self.is_b = not self.is_b
             if self.is_em and self.is_b:
                 self.is_b = 2
