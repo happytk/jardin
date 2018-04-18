@@ -1230,13 +1230,13 @@ class WikiPage(object):
 
         if not send_special:
             if special is None:
-                if self.page_name.startswith('Category'):
-                    special = 'category'
-                elif self.page_name == 'RecentChanges':
-                    special = 'recent'
-                elif self.page_name == 'TitleIndex':
-                    special = 'index'
-                elif not page_exists and not body:
+                # elif self.page_name.startswith('Category'):
+                #     special = 'category'
+                # elif self.page_name == 'RecentChanges':
+                #     special = 'recent'
+                # elif self.page_name == 'TitleIndex':
+                #     special = 'index'
+                if not page_exists and not body:
                     special = 'missing'
                 elif not request.user.may.read(self.page_name):
                     special = 'denied'
