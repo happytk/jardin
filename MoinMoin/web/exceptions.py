@@ -61,6 +61,8 @@ class NotLoginError(exceptions.Forbidden):
         </form>
         """
     )
+    def get_description(*args, **kwargs):
+        return self.description
 
 # handy exception raising
 abort = exceptions.abort

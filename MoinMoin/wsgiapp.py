@@ -7,6 +7,7 @@
     @license: GNU GPL, see COPYING for details.
 """
 import os
+import re
 
 from MoinMoin import log
 logging = log.getLogger(__name__)
@@ -123,6 +124,15 @@ def dispatch(request, context, action_name='show'):
 
     if path.startswith('/'):
         pagename = wikiutil.normalize_pagename(path, cfg)
+        if (cfg.force_pagename_rule and
+                re.match(cfg.force_pagename_rule, pagename) is None):
+            msg = u"Cannot access %s because pagename_rule is forced to be [%s]" % (
+                pagename,
+                cfg.force_pagename_rule,
+            )
+            context.theme.add_msg(msg, "error")
+            pagename = None
+
     else:
         pagename = None
 

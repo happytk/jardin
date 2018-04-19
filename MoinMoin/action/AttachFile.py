@@ -27,12 +27,17 @@
     @license: GNU GPL, see COPYING for details.
 """
 
-import os, time, zipfile, errno, datetime
+import os
+import time
+import zipfile
+import errno
+import datetime
+import re
+
 from StringIO import StringIO
-
 from werkzeug import http_date
-
 from MoinMoin import log
+
 logging = log.getLogger(__name__)
 
 # keep both imports below as they are, order is important:
@@ -593,9 +598,14 @@ def _do_upload(pagename, request):
         target = file_upload.filename or u''
 
     target = wikiutil.clean_input(target)
-
     if not target:
         return _("Filename of attachment not specified!")
+
+    if request.cfg.force_pagename_rule:
+        target_name, ext = os.path.splitext(target)
+        if target_name and not re.match(request.cfg.force_pagename_rule, target_name):
+            return _("Filename(%s) should be accepted by naming rule %s" % (
+                target, request.cfg.force_pagename_rule))
 
     # add the attachment
     try:

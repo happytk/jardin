@@ -740,6 +740,7 @@ options_no_group_name = {
   # =========================================================================
   'zeze_moin_customized': ("zee-moin customized MoinMoin configuration", None,
   (
+    ('force_pagename_rule', r'[a-zA-Z0-9_\-\$]+', ''),
     ('login_only', False, ''),
     ('chat_members', dict(TK='beige', tk='beige', Tk='beige', Mei='mistyrose', MEI='mistyrose', mei='mistyrose'), ''),
     ('attachment_charset', default_encoding, ''),

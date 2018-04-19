@@ -11,6 +11,7 @@
 """
 
 import time
+import re
 from MoinMoin.Page import Page
 
 class NewPage:
@@ -34,6 +35,11 @@ class NewPage:
         if not self.pagename and need_replace:
             return _("Cannot create a new page without a page name."
                      "  Please specify a page name.")
+
+        if (request.cfg.force_pagename_rule and
+                re.match(request.cfg.force_pagename_rule, self.pagename) is None):
+            return _("Cannot create a new page because pagename_rule is [%s]" % request.cfg.force_pagename_rule)
+
         if need_replace:
         # generate a string that can be safely used as the pagename
         # template variable
