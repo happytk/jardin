@@ -21,9 +21,9 @@ jQuery.fn.extend({
                 this.value += myValue;
                 this.focus();
             }
-        })
+        });
     }
-})
+});
 
 
 function insert_textarea(txt) {
@@ -74,7 +74,7 @@ function file_select_handler(to_upload, path, direct) {
                                     change: function() {
                                         var v = progressbar.progressbar('value');
                                         if (v) {
-                                            progressbar_label.text(v + '%'); 
+                                            progressbar_label.text(v + '%');
                                         }
                                     },
                                     complete: function() { /*progressbar_label.text('Complete!');*/ },
@@ -172,7 +172,7 @@ function file_select_handler(to_upload, path, direct) {
     };
     xhr.open('POST', '/__moinfbp/easy_attach/post?path=' + path + '&filename=' + to_upload.name + '&direct=' + direct, true);
     xhr.send(to_upload);
-};
+}
 
 
 function formatRepo (repo) {
@@ -188,7 +188,7 @@ function formatRepoSelection (repo) {
 function attformatRepo (repo) {
 if (repo.loading) return repo.text;
     // console.log(repo);
-    if (repo.ext == '.jpg' || repo.ext == '.png' || repo.ext == '.jpg') {
+    if (repo.ext == '.jpg' || repo.ext == '.png' || repo.ext == '.jpg' || repo.ext == '.jpeg') {
         return $('<div><img src="'+ repo.src + '" style="max-width:200px; max-height:200px;"><br/>' + repo.fmtime + '(' + repo.fsize + 'k)</div>');
         // return $('<div><img src="'+ repo.src + '" style="max-width:200px; max-height:200px;"><br/>'+repo.file+'<br/>' + repo.fmtime + '(' + repo.fsize + 'k)</div>');
     }
@@ -200,7 +200,7 @@ if (repo.loading) return repo.text;
 function attsformatRepo (repo) {
 if (repo.loading) return repo.text;
     // console.log(repo);
-    if (repo.ext == '.jpg' || repo.ext == '.png' || repo.ext == '.jpg') {
+    if (repo.ext == '.jpg' || repo.ext == '.png' || repo.ext == '.jpg' || repo.ext == '.jpeg') {
         return $('<div><img src="'+ repo.src + '" style="max-width:200px; max-height:200px;"><b>' + repo.pagename + '</b><br/>' + repo.fmtime + '(' + repo.fsize + 'k)</div>');
         // return $('<div><img src="'+ repo.src + '" style="max-width:200px; max-height:200px;"><br/>'+repo.file+'<br/>' + repo.fmtime + '(' + repo.fsize + 'k)</div>');
     }
