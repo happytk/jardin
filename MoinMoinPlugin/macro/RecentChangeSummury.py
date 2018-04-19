@@ -8,21 +8,18 @@
     @license: GNU GPL, see COPYING for details.
 """
 
-import re, time, sys, itertools
+import time
 from datetime import datetime
 from MoinMoin.Page import Page
 from MoinMoin import wikiutil
 from MoinMoin.logfile import editlog
 from MoinMoin.parser.text_moin_wiki import Parser as WikiParser
-from MoinMoin import wikiutil
 from MoinMoin.macro.RecentChanges import logchain
 
 
-def getPageListFromLog (macro, req_year, req_week_number,comments_only):
+def getPageListFromLog(macro, req_year, req_week_number, comments_only):
     request = macro.request
     pages = {}
-    oldyw = -1
-    passed= False
 
     log = editlog.EditLog(request)
     for line in logchain(request, log.reverse()):
@@ -38,9 +35,9 @@ def getPageListFromLog (macro, req_year, req_week_number,comments_only):
 
         if req_year > 0 and req_week_number > 0:
             if req_week_number == wn and req_year == year:
-                passed = True
+                pass
             elif (req_week_number > wn and req_year == year) or req_year > year:
-                break #for a performance
+                break
             else:
                 continue
 
@@ -52,66 +49,44 @@ def getPageListFromLog (macro, req_year, req_week_number,comments_only):
         else:
             pages[yw][line.pagename] = [dict(userid=line.userid, comment=line.comment)]
 
-
     ret = []
     for yw in sorted(pages.keys()):
         if len(pages[yw].keys()) > 0:
             ret.append("WEEK%s, %s" % (yw[-2:], yw[:4]))
-            for page in reversed(sorted(pages[yw].keys(), key=lambda x:len(pages[yw][x]))):
+            for page in reversed(sorted(pages[yw].keys(), key=lambda x: len(pages[yw][x]))):
                 edit_cnt = len(pages[yw][page])
-                comments = map(lambda x:x['comment'], filter(lambda x:len(x['comment'])>0, pages[yw][page]))
+                comments = map(lambda x: x['comment'], filter(lambda x: len(x['comment'])>0, pages[yw][page]))
                 userids = set(map(lambda x:x['userid'], pages[yw][page]))
 
                 p = Page(request, page)
 
                 if len(comments) > 0 or not comments_only:
                     if p.exists():
-                        ret.append(' * [[%s]] (edited %s) <<HTML(<i class="fa fa-user"></i>)>> %s' % (page, str(edit_cnt), ','.join(userids)))
+                        ret.append(' - [[%s]] (edited %s) <<HTML(<i class="fa fa-user"></i>)>> %s' % (page, str(edit_cnt), ','.join(userids)))
                     else:
-                        ret.append(' * `%s` (edited %s) <<HTML(<i class="fa fa-user"></i>)>> %s' % (page, str(edit_cnt), ','.join(userids)))
+                        ret.append(' - `%s` (edited %s) <<HTML(<i class="fa fa-user"></i>)>> %s' % (page, str(edit_cnt), ','.join(userids)))
                     for comment in comments:
-                        ret.append('  * ' + comment)
-            """
-            ret.append('<b>WEEK%s, %s</b>'% (yw[-2:],yw[:4]))
-            ret.append('<ol>')
-            for page in reversed(sorted(pages[yw].keys(), key=lambda x:len(pages[yw][x]))):
-                page_link = Page(request,page).link_to(request, '%s(%d) ' % (page,len(pages[yw][page]),), css_class="include-page-link")
-                comments = filter(lambda x:len(x)>0, pages[yw][page])
-                if comments_only and len(comments)>0:
-                    ret.append('<li>'+page_link+'</li>')
-                    ret.append('<ul>')
-                    for comment in comments:
-                        ret.append('<li>' + comment + '</li>')
-                    ret.append('</ul>')
-                elif not comments_only:
-                    ret.append('<li>'+page_link+'</li>')
-                    ret.append('<ul>')
-                    for comment in comments:
-                        ret.append('<li>' + comment + '</li>')
-                    ret.append('</ul>')
-            ret.append('</ol>')
-            """
+                        ret.append('  - ' + comment)
 
-    macro_str = "<<%s>>" % (macro.name)
-    content_str = '\n'.join(ret)
-    form = u'''<form method='post'>
-    <input type='hidden' name='action' value='ReplaceTagAction'>
-    <input type='hidden' name='rsv' value='0'>
-    <input type='hidden' name='regexp' value='0'>
-    <textarea name='tag' style='display:none'>%s</textarea>
-    <textarea name='txt' style='display:none'>%s</textarea>
-    <input type='submit' value='   HARDCOPY TO THIS PAGE   '>
-</form>
-''' % (macro_str, content_str)
-    # return wikiutil.renderText(request, WikiParser, wikiutil.escape(content_str)) + form
-    return wikiutil.renderText(request, WikiParser, content_str) + form
+#     macro_str = "<<%s>>" % (macro.name)
+#     content_str = '\n'.join(ret)
+#     form = u'''<form method='post'>
+#     <input type='hidden' name='action' value='ReplaceTagAction'>
+#     <input type='hidden' name='rsv' value='0'>
+#     <input type='hidden' name='regexp' value='0'>
+#     <textarea name='tag' style='display:none'>%s</textarea>
+#     <textarea name='txt' style='display:none'>%s</textarea>
+#     <input type='submit' value='   HARDCOPY TO THIS PAGE   '>
+# </form>
+# ''' % (macro_str, content_str)
+
+#     return wikiutil.renderText(request, WikiParser, content_str) + form
+    return wikiutil.renderText(request, WikiParser, '\n'.join(ret))
+
 
 def macro_RecentChangeSummury(macro, year=0, week_number=0, comments_only=False):
 
     if year == 0 and week_number == 0:
         year, week_number, wd = datetime.isocalendar(datetime.today())
 
-    return getPageListFromLog(macro,year,week_number,comments_only)
-
-
-
+    return getPageListFromLog(macro, year, week_number, comments_only)

@@ -371,10 +371,11 @@ class Parser:
 )|(?P<sgml_entity>  # must come AFTER entity rule!
     [<>&]  # needs special treatment for html/xml
 )|(?P<chat>
-    (TK|MEI|tk|mei|Tk|Mei):
+    (%(chat_members)s):
 )|
 %(user_wiki_rule)s"""  % {
         'user_wiki_rule': config.user_wiki_rule,
+        'chat_members': '|'.join(config.chat_members.keys()),
         'url_scheme': url_scheme,
         'url_rule': url_rule,
         'punct': punct_pattern,
@@ -951,16 +952,14 @@ class Parser:
 
     def _chat_repl(self, word, groups):
         result = []
-        if word in ('TK:', 'tk:', 'MEI:', 'mei:', 'Tk:', 'Mei:'):
+        if word[:-1] in self.cfg.chat_members.keys():
             if self.in_chat:
                 # self._close_item(result)
                 self.in_chat = 0
                 result.append(u'</span>')
             self.in_chat = 1
-            if word.startswith('t') or word.startswith('T'):
-                result.append('<i class="fa fa-comment font-blue"></i> <span style="background-color:beige;">')
-            elif word.startswith('m') or word.startswith('M'):
-                result.append('<i class="fa fa-comment font-red"></i> <span style="background-color:mistyrose;">')
+            color = self.cfg.chat_members[word[:-1]]
+            result.append('<i class="fa fa-comment" style="color: %s"></i> <span style="background-color: %s">' % (color, color))
         else:
             result.append(word)
         return ''.join(result)

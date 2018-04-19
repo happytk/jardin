@@ -48,10 +48,9 @@ from git import Repo
 # from dulwich import porcelain
 
 from MoinMoin.logfile import editlog
-from MoinMoin import caching
 from MoinMoin import wikiutil
 from MoinMoin import config
-from MoinMoin.Page import WikiPage, WikiRootPage, Page
+from MoinMoin.Page import WikiPage, WikiRootPage
 from MoinMoin import log
 from MoinMoin.action import AttachFile
 from pprint import pformat
@@ -181,7 +180,7 @@ class GitMiddleware(Middleware):
             # odt2 = datetime.datetime.now()
             # title, rev, date, author, comment
             date = datetime.datetime.utcfromtimestamp(mktime(commit.committed_datetime.utctimetuple()))
-            author = commit.committer.email
+            author = commit.committer.name or commit.committer.email
             comment = commit.summary
             rev = commit.hexsha
 

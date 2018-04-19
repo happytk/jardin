@@ -740,6 +740,8 @@ options_no_group_name = {
   # =========================================================================
   'zeze_moin_customized': ("zee-moin customized MoinMoin configuration", None,
   (
+    ('login_only', False, ''),
+    ('chat_members', dict(TK='beige', tk='beige', Tk='beige', Mei='mistyrose', MEI='mistyrose', mei='mistyrose'), ''),
     ('attachment_charset', default_encoding, ''),
     ('fs_encoding', default_encoding, ''),
     ('fs_extension', '.md', ''),

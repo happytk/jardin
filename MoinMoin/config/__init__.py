@@ -11,24 +11,12 @@ from MoinMoin import version
 # unicode: set the char types (upper, lower, digits, spaces)
 from MoinMoin.util.chartypes import *
 
+chat_members = dict(TK='beige', tk='beige', Tk='beige', Mei='mistyrose', MEI='mistyrose', mei='mistyrose')
 
 user_wiki_rule_formatter = lambda cfg, fmt, word: '<a href="/'+word+'">' +  fmt.text(word) + '</a>'
 user_wiki_rule = ur"""(?P<user_wiki_rule>
-        [a-zA-Z]{3}[Ss][a-zA-Z0-9]{8}[tT][0-9]{2}
-        |
-        z[a-z]{3}m[a-z0-9]{8}
-        |
-        z[a-z]{3}b[a-z0-9]{8}
-        |
-        Z[A-Z]{3}S[A-Z0-9]{8}_TR[0-9]{2}
-        |
-        z[a-z_]+_[sifud][0-9]{4}
-        |
-        z[a-z]{3}_[a-z0-9_]+(_[sifud][0-9]{4})?
-        |
-        Z[A-Z]{3}S[A-Z0-9]{8}
+            hello-this-is-user-wiki-rule:
 )"""
-
 
 
 # List of image types browser do support regulary

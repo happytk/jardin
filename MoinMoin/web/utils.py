@@ -14,9 +14,33 @@ from MoinMoin import caching
 from MoinMoin import log
 from MoinMoin import wikiutil
 from MoinMoin.Page import Page
-from MoinMoin.web.exceptions import Forbidden, SurgeProtection
+from MoinMoin.web.exceptions import Forbidden, SurgeProtection, NotLoginError
 
 logging = log.getLogger(__name__)
+
+
+def check_login(request):
+    _check_action = (
+        # 'login',
+        'logout',
+    )
+    is_login = False
+    args = request.args
+    action = args.get('action')
+    if action in _check_action:
+        is_login = True
+    else:
+        # then handle login/logout forms
+        form = request.values
+        for act in _check_action:
+            if act in form:
+                is_login = True
+                break
+
+    if request.cfg.login_only and not (request.user and request.user.valid) and not is_login:
+        raise NotLoginError()
+    return False
+
 
 def check_forbidden(request):
     """ Simple action and host access checks
@@ -41,6 +65,7 @@ def check_forbidden(request):
                 logging.debug("hosts_deny (ip): %s" % remote_addr)
                 raise Forbidden()
     return False
+
 
 def check_surge_protect(request, kick=False):
     """ Check for excessive requests

@@ -15,7 +15,7 @@ from MoinMoin.web.contexts import AllContext, Context, XMLRPCContext
 from MoinMoin.web.exceptions import HTTPException
 from MoinMoin.web.request import Request, MoinMoinFinish, HeaderSet
 from MoinMoin.web.utils import check_forbidden, check_surge_protect, fatal_response, \
-    redirect_last_visited
+    redirect_last_visited, check_login
 from MoinMoin.Page import Page
 from MoinMoin import auth, config, i18n, user, wikiutil, xmlrpc, error
 from MoinMoin.action import get_names, get_available_actions
@@ -74,6 +74,7 @@ def run(context):
     # preliminary access checks (forbidden, bots, surge protection)
     try:
         try:
+            check_login(context)
             check_forbidden(context)
             check_surge_protect(context)
 
@@ -289,8 +290,8 @@ class Application(object):
             response = run(context)
             context.clock.stop('total')
             logging.info('{} "{} {} {}" {} {}'.format( environ.get('REMOTE_ADDR', ''),
-                                                  environ.get('REQUEST_METHOD', ''),                                                                    
-                                                  environ.get('PATH_INFO', ''),                                                                         
+                                                  environ.get('REQUEST_METHOD', ''),
+                                                  environ.get('PATH_INFO', ''),
                                                   environ.get('SERVER_PROTOCOL', ''),
                                                   environ.get('HTTP_USER_AGENT', ''),
                                                   environ.get('HTTP_REFERER', '-') ))
