@@ -29,7 +29,7 @@ class Parser:
         self.formatter     = request.formatter
         self.raw           = raw
         self.args_string   = kw.get('format_args','')
-        self.args          = self.args_string.split()
+        self.args          = self.args_string.split() if isinstance(self.args_string, str) else ''
 
         #self.attpath = AttachFile.getAttachDir(request, LibPage, create=0)
         #if self.attpath not in sys.path:
@@ -140,4 +140,4 @@ class Parser:
             self.request.write("<pre>")
             traceback.print_exc(file=self.request)
             self.request.write("</pre>")
- 
+

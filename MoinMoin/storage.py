@@ -327,6 +327,11 @@ class GitPageAdaptor(PageAdaptor):
         # request = self.request
 
         # update the file
+        # 2018.04.19 create a directory if in a need
+        filepath, filename = os.path.split(self.filepath)
+        if not os.path.isdir(filepath):
+            os.makedirs(filepath)
+
         with codecs.open(self.filepath, 'wb', 'utf8') as f:
             f.write(newtext)
 
@@ -384,9 +389,10 @@ class GitPageAdaptor(PageAdaptor):
     def rename(self, new_pagename_fs):
         index = self.repo.index
 
+        new_pagename = wikiutil.unquoteWikiname(new_pagename_fs)
 
-        filedir, filename = os.path.split(self.filepath)
-        index.add([os.path.join(filedir, new_pagename_fs + '.md')])
+        # filedir, filename = os.path.split(self.filepath)
+        index.add([os.path.join(self.path, new_pagename + '.md')])
         index.remove([self.filepath])
 
         # delete old physical files (new file is already spawned)
@@ -408,7 +414,7 @@ class GitPageAdaptor(PageAdaptor):
             #     new_pagename_fs
             # )
             # new_att_filepath = os.path.join(self.path, '_attachments', new_pagename_fs)
-            new_att_filepath = self._get_attach_dir(new_pagename_fs)
+            new_att_filepath = self._get_attach_dir(new_pagename)
             os.rename(att_filepath, new_att_filepath)
             index.add([
                 os.path.join(new_att_filepath, fp)
@@ -423,7 +429,7 @@ class GitPageAdaptor(PageAdaptor):
             author = Actor("anonymous", "anonymous@moin")
             committer = author
         ret = index.commit(
-            "moinmoin: renamed from " + self.pagename + " to " + new_pagename_fs,
+            "moinmoin: renamed from " + self.pagename + " to " + new_pagename,
             author=author,
             committer=committer
         )
