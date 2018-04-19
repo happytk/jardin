@@ -303,7 +303,8 @@ class SearchResults(object):
 
     def pageList(self, request, formatter, info=0, numbered=1,
             paging=True, hitsFrom=0, hitsInfo=0, highlight_titles=True,
-            highlight_pages=True):
+            highlight_pages=True, excluded=None):
+
         """ Format a list of found pages
 
         @param request: current request
@@ -331,14 +332,19 @@ class SearchResults(object):
             paging = False
 
         # Add pages formatted as list
-        if self.hits:
+        if excluded:
+            hits = [p for p in self.hits if p.page_name not in excluded]
+        else:
+            hits = self.hits
+
+        if hits:
             write(lst(1))
 
             if paging:
                 hitsTo = hitsFrom + request.cfg.search_results_per_page
-                displayHits = self.hits[hitsFrom:hitsTo]
+                displayHits = hits[hitsFrom:hitsTo]
             else:
-                displayHits = self.hits
+                displayHits = hits
 
             for page in displayHits:
                 if isinstance(page, FoundRemote):
