@@ -248,11 +248,11 @@ class Parser:
     # please be very careful: blanks and # must be escaped with \ !
     scan_rules = ur"""
 (?P<emph_ibb>
-    \*\*\*(?=[^']+\*\*)  # italic on, bold on, ..., bold off
+    \*\*\*(?=[^\*]+\*\*)  # italic on, bold on, ..., bold off
 )|(?P<emph_ibi>
-    \*\*\*(?=[^']+\*)  # italic on, bold on, ..., italic off
+    \*\*\*(?=[^\*]+\*)  # italic on, bold on, ..., italic off
 )|(?P<emph_ib_or_bi>
-    \*{3}(?=[^'])  # italic and bold or bold and italic
+    \*{3}(?=[^\*])  # italic and bold or bold and italic
 )|(?P<emph>
     \*{1,2}  # italic or bold
 )|(?P<u>
@@ -329,7 +329,7 @@ class Parser:
     (?P<heading_text>.*?)$  # capture heading text
 )|(?P<parser>
     \`\`\`  # parser on
-    (?P<parser_unique>(\{*|\w*))  # either some more {{{{ or some chars to solve the nesting problem
+    (?P<parser_unique>(\`*|\w*))  # either some more {{{{ or some chars to solve the nesting problem
     (?P<parser_line>
      (
       \#!  # hash bang
@@ -1260,10 +1260,14 @@ class Parser:
         parser_args = groups.get('parser_args', None)
         parser_nothing = groups.get('parser_nothing', None)
         parser_unique = groups.get('parser_unique', u'') or u''
-        #logging.debug("_parser_repl: parser_name %r parser_args %r parser_unique %r" % (parser_name, parser_args, parser_unique))
-        if set(parser_unique) == set('{'): # just some more {{{{{{
-            parser_unique = u'}' * len(parser_unique) # for symmetry cosmetic reasons
-        self.parser_unique = parser_unique
+        # logging.critical("_parser_repl: parser_name %r parser_args %r parser_unique %r" % (parser_name, parser_args, parser_unique))
+        # logging.critical("parser_line: %r" % (parser_line))
+        if set(parser_unique) == set('`'): # just some more {{{{{{
+            parser_unique = u'`' * len(parser_unique) # for symmetry cosmetic reasons
+            self.parser_unique = parser_unique
+        else:
+            self.parser_unique = ''
+            parser_name = parser_name or parser_unique
         if parser_name is not None:
             # First try to find a parser for this
             if parser_name == u'':
@@ -1287,12 +1291,12 @@ class Parser:
         if self.parser:
             self.parser_name = parser_name
             self.in_pre = 'found_parser'
-            if word:
+            if word.strip():
                 self.parser_lines.append(word)
         else:
             self.in_pre = 'search_parser'
 
-        #logging.debug("_parser_repl: in_pre %r line %d" % (self.in_pre, self.lineno))
+        # logging.critical("_parser_repl: in_pre %r line %d" % (self.in_pre, self.lineno))
         return ''
     _parser_unique_repl = _parser_repl
     _parser_line_repl = _parser_repl
