@@ -11,7 +11,6 @@
 import os
 import sys
 import flask
-from MoinMoin import config
 from pprint import pformat
 
 MOINPATH = os.environ['MOIN']
@@ -34,6 +33,7 @@ werkzeug._internal._logger = log.getLogger('werkzeug')
 from werkzeug import run_simple
 from werkzeug.serving import BaseRequestHandler
 
+
 class RequestHandler(BaseRequestHandler):
     """
     A request-handler for WSGI, that overrides the default logging
@@ -54,6 +54,7 @@ class RequestHandler(BaseRequestHandler):
 
     def log_message(self, format, *args):
         logging.info("%s %s", self.address_string(), (format % args))
+
 
 class ProxyTrust(object):
     """
@@ -82,6 +83,7 @@ class ProxyTrust(object):
             del environ['REMOTE_ADDR']
         return self.app(environ, start_response)
 
+
 def _make_application(shared=None, trusted_proxies=None):
     """
     Make an instance of the MoinMoin WSGI application. This involves
@@ -105,6 +107,7 @@ def _make_application(shared=None, trusted_proxies=None):
 
     return application
 
+
 def make_fbp_application():
 
     app = flask.Flask(__name__)
@@ -118,37 +121,50 @@ def make_application(shared=None, trusted_proxies=None):
 
     fbpapp = make_fbp_application()
     """ Run a standalone server on specified host/port. """
-    application = _make_application(shared=os.path.join(MOINPATH, 'MoinMoinHtdocs'))
+    application = _make_application(shared=os.path.join(
+        MOINPATH, 'MoinMoinHtdocs'))
     logging.critical(os.path.join(MOINPATH, 'MoinMoinHtdocs'))
     try:
         from farmconfig import wikis
     except ImportError as e:
-        # logging.critical('farmconfig import error',exc_info=True)
         import wikiconfig
+        fbpapp.config['_wikiconfig'] = wikiconfig.Config
+
         urlmap = {
             '/': application,
             '/__moinfbp': fbpapp,
-            # '/__repo': GitDirectory(wikiconfig.Config.instance_dir + '.git'),
-            # '/.git': GitDirectory(os.path.join(wikiconfig.Config.data_dir, 'pages')),
         }
     else:
-        include = [ wiki for wiki, url in wikis ]
+        include = [wiki for wiki, url in wikis]
 
-        config = {x: __import__(x) for x in include}
-        # gits_dir = {x: os.path.join(config[x].Config.instance_dir, '.git') for x in include}
-        gits_dir = {x: config[x].Config.instance_dir + '.git' for x in include}
-        gits_is  = {x: GitDirectory(gits_dir[x]) for x in include}
+        configs = {x: __import__(x).Config for x in include}
+        fbpapp.config['_wikiconfig'] = configs
+
+        gits_dir = {
+            x: GitDirectory(configs[x].instance_dir + '.git')
+            for x in configs
+            if os.path.isdir(configs[x].instance_dir + '.git')
+        }
 
         # assume the prefix (wiki_) exists.
         def _omit_prefix(x):
-            if x.startswith('wiki_'): x = x[5:]
+            if x.startswith('wiki_'):
+                x = x[5:]
             return '/' + x
-        urlmap = {_omit_prefix(x):application for x in include}
-        urlmap.update({_omit_prefix(x) + '.git':gits_is[x] for x in include})
+
+        urlmap = {
+            _omit_prefix(x): application
+            for x in include
+        }
+        urlmap.update({
+            _omit_prefix(x) + '.git': git_dir
+            for x, git_dir in gits_dir.items()
+        })
         urlmap['/__moinfbp'] = fbpapp
 
     logging.critical('url-map is configured like: {0}'.format(pformat(urlmap)))
     return DispatcherMiddleware(application, urlmap)
+
 
 def switch_user(uid, gid=None):
     """ Switch identity to safe user and group

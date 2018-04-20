@@ -740,8 +740,9 @@ options_no_group_name = {
   # =========================================================================
   'zeze_moin_customized': ("zee-moin customized MoinMoin configuration", None,
   (
-    ('force_pagename_rule', r'[a-zA-Z0-9_\-\$]+', ''),
-    ('login_only', False, ''),
+    ('attachment_static', False, 'make attachments to static link. and close attachment form.'),
+    ('force_pagename_rule', r'[a-zA-Z0-9_\-\$]+', 'pagename, filename(attachment) rule.'),
+    ('login_only', False, 'login users are only allowed to use.'),
     ('chat_members', dict(TK='beige', tk='beige', Tk='beige', Mei='mistyrose', MEI='mistyrose', mei='mistyrose'), ''),
     ('attachment_charset', default_encoding, ''),
     ('fs_encoding', default_encoding, ''),

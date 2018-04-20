@@ -441,6 +441,7 @@ def _get_files(request, pagename):
             # fn.decode(request.cfg.attachment_charset)
             fn
             for fn in os.listdir(attach_dir)
+            if os.path.isfile(os.path.join(attach_dir, fn))
         ]
         # files = [wikiutil.unquoteWikiname(fn) for fn in os.listdir(attach_dir)]
         files.sort()

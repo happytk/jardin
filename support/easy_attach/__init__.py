@@ -68,6 +68,13 @@ def get_filename(data):
     return sha1sum
 
 
+@easy_attach_page.route('/configuration', methods=['POST', 'GET'])
+def configuration():
+    return flask.jsonify(
+        flask.current_app.config
+    )
+
+
 @easy_attach_page.route('/post', methods=['POST', 'GET'])
 def post():
     filename = flask.request.values.get('filename', '').lower()
@@ -81,7 +88,7 @@ def post():
         try:
             os.mkdir(data_dir)
         except:  # noqa
-            return "Couldn't create upload directory: {}".format(data_dir)
+            return "Couldn't create upload-directory: {}".format(data_dir)
 
     def _save_direct():
         f = filename
@@ -97,7 +104,6 @@ def post():
 
         return 'success' + '/' + f
 
-    import pdb; pdb.set_trace()
     if direct == 'false' and (
             filename.endswith('.jpg') or filename.endswith('.jpeg')):
 
