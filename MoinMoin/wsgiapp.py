@@ -124,7 +124,7 @@ def dispatch(request, context, action_name='show'):
 
     if path.startswith('/'):
         pagename = wikiutil.normalize_pagename(path, cfg)
-        if (cfg.force_pagename_rule and
+        if (pagename and cfg.force_pagename_rule and
                 re.match(cfg.force_pagename_rule, pagename) is None):
             msg = u"Cannot access %s because pagename_rule is forced to be [%s]" % (
                 pagename,
