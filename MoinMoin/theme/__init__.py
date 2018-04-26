@@ -1031,7 +1031,21 @@ var search_hint = "%(search_hint)s";
         else:
             # Old config using string, output as is
             html = self.cfg.page_credits
-        return html
+
+        from MoinMoin.security import _check
+        acl_summary = []
+        for group_name in self.request.groups:
+            group = self.request.groups[group_name]
+            for username in group:
+                acl_result = ''.join([
+                    ['', '<i class="fa fa-eye"></i>'][_check(self.request, d['page'].page_name, username, 'read')],
+                    ['', '<i class="fa fa-pencil"></i>'][_check(self.request, d['page'].page_name, username, 'read')],
+                ])
+                if acl_result:
+                    acl_summary.append('<u>' + group.name + '</u>(' + (','.join(group.members)) + '): ' + acl_result)
+                break
+        acl_applied = '<span class="label label-sm label-warning">'
+        return html + '<div id="credits">' + acl_applied + (','.join(acl_summary)) + '</span></div>'
 
     def actionsMenu(self, page):
         """ Create actions menu list and items data dict

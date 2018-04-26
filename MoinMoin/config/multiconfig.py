@@ -1039,7 +1039,7 @@ options_no_group_name = {
      'Pagenames exactly matching this regex are regarded as Wiki categories [Unicode]'),
     ('page_dict_regex', ur'(?P<all>(?P<key>\S+)Dict)',
      'Pagenames exactly matching this regex are regarded as pages containing variable dictionary definitions [Unicode]'),
-    ('page_group_regex', ur'(?P<all>(?P<key>\S+)Group)',
+    ('page_group_regex', ur'(?P<all>(?P<key>\S+)UserGroup)',
      'Pagenames exactly matching this regex are regarded as pages containing group definitions [Unicode]'),
     ('page_template_regex', ur'(?P<all>(?P<key>\S+)Template)',
      'Pagenames exactly matching this regex are regarded as pages containing templates for new pages [Unicode]'),
