@@ -1,4 +1,4 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 """
     MoinMoin - RecentChanges Macro
 
@@ -377,6 +377,7 @@ def macro_RecentChanges(macro, abandoned=False):
 
     # set max size in days
     max_days = min(int(request.values.get('max_days', 0)), _DAYS_SELECTION[-1])
+    ignore_line_limit = int(request.values.get('ignore_line_limit', 0))
     # default to _MAX_DAYS for useres without bookmark
     if not max_days and not bookmark_usecs:
         max_days = _MAX_DAYS
@@ -452,9 +453,12 @@ def macro_RecentChanges(macro, abandoned=False):
             pages[line.pagename] = [line]
 
         # line limit per day
-        LIMIT = 1000
-        if line_count >= LIMIT:
-            logging.warn('LOG[%s] OVER %d LIMIT HAS BEEN STRIPPED' % (str(this_day), LIMIT))
+        LIMIT = 30
+        if line_count >= LIMIT and not ignore_line_limit and max_days < 8:
+            msg = _(u'<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Exceed log-line-limit(%(limit)d) for the performance. (필요할 경우 <a href="?ignore_line_limit=1">이 링크를 눌러 시도</a>. 그러나 오래걸릴 수도, 실패할 수 있습니다.)</div>') % {
+                'limit': LIMIT,
+            }
+            # logging.warn('LOG[%s] OVER %d LIMIT HAS BEEN STRIPPED' % (str(this_day), LIMIT))
             break
         else:
             line_count +=1
