@@ -1039,7 +1039,7 @@ var search_hint = "%(search_hint)s";
             for username in group:
                 acl_result = ''.join([
                     ['', '<i class="fa fa-eye"></i>'][_check(self.request, d['page'].page_name, username, 'read')],
-                    ['', '<i class="fa fa-pencil"></i>'][_check(self.request, d['page'].page_name, username, 'read')],
+                    ['', '<i class="fa fa-pencil"></i>'][_check(self.request, d['page'].page_name, username, 'write')],
                 ])
                 if acl_result:
                     acl_summary.append('<u>' + group.name + '</u>(' + (','.join(group.members)) + '): ' + acl_result)
