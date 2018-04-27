@@ -7,3 +7,8 @@
     padding-top: 10px;
     padding-bottom: 1px;
 }
+
+tt.backtick {
+    background-color: azure;
+    color: #888;
+}
