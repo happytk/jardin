@@ -8,7 +8,7 @@ import sys
 import os
 import re
 
-wiki_basedir = os.path.splitext(os.path.basename(__file__))[0]
+wiki_basedir = os.path.split(os.path.abspath(os.path.basename(__file__)))[0]
 wiki_baseurl = r"^(http|https)://([A-Za-z0-9\-\.]+)(:[0-9]+)?/{}/.*$"
 wikis = [
     (wiki, wiki_baseurl.format(wiki[5:]))
