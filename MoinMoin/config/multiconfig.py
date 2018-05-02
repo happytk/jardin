@@ -754,6 +754,7 @@ options_no_group_name = {
     ('user_wiki_rule', '', ''),
     ('pagelink_replacer', lambda cfg, pagename, request, **kw: None, ''),
     ('all_pages_exclude_dayone', True, 'all_pages function collects results without dayone-middleware'),
+    ('interwikimap_text', '', 'interwiki_strings'),
   )),
   # =========================================================================
   'attachment_extension': ("Mapping of attachment extensions to actions", None,

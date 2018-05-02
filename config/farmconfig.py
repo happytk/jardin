@@ -1,15 +1,3 @@
-wikis = [
-    # ("wiki_mei",       r"^(http|https)://(localhost|127.0.0.1)(:[0-9]+)?/mei/.*$"),
-    # ("wiki_wecanfly",  r"^(http|https)://(localhost|127.0.0.1)(:[0-9]+)?/wecanfly/.*$"),
-    ("wiki_jardin",   r"^(http|https)://(erc.skcc.com)(:[0-9]+)?/jardin/.*$"),
-    ("wiki_cph", r"^(http|https)://(erc.skcc.com)(:[0-9]+)?/cph/.*$"),
-    ("wiki_daw", r"^(http|https)://(erc.skcc.com)(:[0-9]+)?/daw/.*$"),
-    ("wiki_test3", r"^(http|https)://(erc.skcc.com)(:[0-9]+)?/test3/.*$"),
-    # ("wiki_test",     r"^(http|https)://(localhost|127.0.0.1)(:[0-9]+)?/test/.*$"),
-    # ("wiki_master",  r"^(http|https)://(localhost|wecanfly.net|192.168.0.4)(:[0-9]+)?/master/.*$"),
-    # ("wiki_friends",  r"^(http|https)://(localhost|wecanfly.net|192.168.0.4)(:[0-9]+)?/amb/.*$"),
-]
-
 from MoinMoin.config.multiconfig import DefaultConfig
 from MoinMoin.storage import (
     GitMiddleware,
@@ -19,14 +7,20 @@ from collections import OrderedDict
 import sys
 import os
 import re
+
+wiki_basedir = os.path.splitext(os.path.basename(__file__))[0]
+wiki_baseurl = r"^(http|https)://([A-Za-z0-9\-\.]+)(:[0-9]+)?/{}/.*$"
+wikis = [
+    (wiki, wiki_baseurl.format(wiki[5:]))
+    for wiki in (
+        'wiki_cph',
+        'wiki_test',
+    )
+]
+
 _RE_ALL = re.compile(r'.*')
 
 class FarmConfig(DefaultConfig):
-    # data_underlay_dir = '/volume1/wcfdev/wiki-apt/underlay'
-    #url_prefix_static = '/wikifarm'
-    # theme_default = 'modernized_mobile'
-
-    sqlrun_dbconns = {'xe': 'system/oracle@localhost:1521/xe'}
 
     wikiconfig_dir = os.path.dirname(__file__)
 
@@ -47,21 +41,17 @@ class FarmConfig(DefaultConfig):
     # All acl_rights_xxx options must use unicode [Unicode]
     acl_rights_before = u"HappyTk:read,write,delete,revert,admin"
 
-    DesktopEdition = True # give all local users full powers
-    acl_rights_default = u"All:read,write"
+    DesktopEdition = False # give all local users full powers
+    acl_rights_default = u"All:"
     surge_action_limits = None # no surge protection
-    sitename = u'MoinMoin'
-    # logo_string = u'<img src="%s/common/moinmoin.png" alt="MoinMoin Logo">' % url_prefix_static
+    sitename = u'zee'
     logo_string = u''
     show_interwiki = 1
 
     # ^^^ DON'T TOUCH THIS EXCEPT IF YOU KNOW WHAT YOU DO ^^^
 
-    #page_front_page = u'FrontPage' # change to some better value
-
     # Add your configuration items here.
-    secrets = 'This string is NOT a secret, please make up your own, long, random secret string!'
-    plugin_dir = '/home/ercc/jardin/lib/MoinMoinPlugin'
+    secrets = 'jelkajslekfjhlakwjheflkjashdlkfueh,ajshdjfhjebajsdhf831!@#!'
     tz_offset = 9.0
     show_timings = False
     show_version = False
@@ -72,3 +62,8 @@ class FarmConfig(DefaultConfig):
     xapian_stemming = False
     surge_action_limits = None
 
+    cookie_name = sitename  # cookie name is same for all wikis
+    cache_dir = os.path.join(wiki_basedir, 'farmdata', 'cache')
+    session_dir = os.path.join(wiki_basedir, 'farmdata', 'cache', '__session__')
+    user_dir = os.path.join(wiki_basedir, 'farmdata', 'user')
+    plugin_dir = os.path.join(wiki_basedir, 'lib', 'MoinMoinPlugin')

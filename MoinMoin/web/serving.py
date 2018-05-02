@@ -136,8 +136,14 @@ def make_application(shared=None, trusted_proxies=None):
         }
     else:
         include = [wiki for wiki, url in wikis]
-
         configs = {x: __import__(x).Config for x in include}
+        interwikis = [
+            '%s /%s/' % (configs[config_name].interwikiname, configs[config_name].interwikiname)
+            for config_name in configs
+        ]
+        for config_name in configs:
+            configs[config_name].interwikimap_text = '\n'.join(interwikis)
+
         fbpapp.config['_wikiconfig'] = configs
 
         gits_dir = {

@@ -489,6 +489,7 @@ def load_wikimap(request):
 
         # add the contents of the InterWikiMap page
         lines += Page(request, INTERWIKI_PAGE).get_raw_body().splitlines()
+        lines += request.cfg.interwikimap_text.splitlines()
 
         for line in lines:
             if not line or line[0] == '#':
