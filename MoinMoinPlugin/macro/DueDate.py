@@ -274,7 +274,6 @@ def execute(macro, text, args=""):
     if len(text) not in [2,4,8]: return u"<b>invalid date length</b>"
 
     if convertLuna:
-        #?????? ??????
         today_luna = sol2lun(localtime[0],localtime[1],localtime[2])
         today_luna = today_luna[0],today_luna[1],today_luna[2],0,0,0,0,0,0
         ddayTuple=getFullTime(text,today_luna)
@@ -286,9 +285,9 @@ def execute(macro, text, args=""):
     timeDiff=(time.mktime(ddayTuple)-time.mktime(localtime))/86400
     date=time.strftime("(%Y/%m/%d) ",ddayTuple)
     if timeDiff >0:
-        msg = u'%d days remain until %s' % (timeDiff, date)
+        msg = u'%d days left until %s' % (timeDiff, date)
     elif timeDiff == 0 :
         msg = u'%s is TODAY' % date
     else:
-        msg = u'%d days elapsed from %s' % (abs(timeDiff), date)
+        msg = u'%d days have passed since %s.' % (abs(timeDiff), date)
     return msg
