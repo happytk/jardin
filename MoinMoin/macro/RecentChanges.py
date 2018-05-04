@@ -14,7 +14,7 @@ import time
 
 from MoinMoin import util, wikiutil
 from MoinMoin.Page import Page, get_middleware_type
-from MoinMoin.storage import MoinWikiMiddleware
+from MoinMoin.storage import MoinWikiMiddleware, GitMiddleware
 from MoinMoin.logfile import editlog
 from MoinMoin import render_template
 
@@ -408,6 +408,13 @@ def macro_RecentChanges(macro, abandoned=False):
     day_count = 0
     line_count = 0
 
+    # iter_commit of git is heavy. so set the limit.
+    LIMIT = 0
+    for _, storage in request.storage.iteritems():
+        if isinstance(storage, GitMiddleware):
+            LIMIT = 30
+            break
+
     for line in logchain(request, log.reverse()):
 
         if not request.user.may.read(line.pagename):
@@ -462,8 +469,7 @@ def macro_RecentChanges(macro, abandoned=False):
             pages[line.pagename] = [line]
 
         # line limit per day
-        LIMIT = 30
-        if line_count >= LIMIT and not ignore_line_limit and max_days < 8:
+        if LIMIT and line_count >= LIMIT and not ignore_line_limit and max_days < 8:
             msg = _(u'<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Exceed log-line-limit(%(limit)d) for the performance. (필요할 경우 <a href="?ignore_line_limit=1">이 링크를 눌러 시도</a>. 그러나 오래걸릴 수도, 실패할 수 있습니다.)</div>') % {
                 'limit': LIMIT,
             }
