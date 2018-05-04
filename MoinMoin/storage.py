@@ -176,13 +176,14 @@ class GitMiddleware(Middleware):
     def history(self, request):
         _usercache = {}
         # odt1 = None
-        for commit in self.repo.iter_commits('master'):
+        for idx, commit in enumerate(self.repo.iter_commits('master')):
+            # print(idx, commit)
             # odt2 = datetime.datetime.now()
             # title, rev, date, author, comment
             date = datetime.datetime.utcfromtimestamp(mktime(commit.committed_datetime.utctimetuple()))
             author = commit.committer.name or commit.committer.email
             comment = commit.summary
-            rev = commit.hexsha
+            # rev = commit.hexsha
 
             if len(commit.stats.files) > 5:
                 # skip bulk

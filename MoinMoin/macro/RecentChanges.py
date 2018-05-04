@@ -8,25 +8,27 @@
     @license: GNU GPL, see COPYING for details.
 """
 import time
-import itertools
-import datetime
-import logging
+# import itertools
+# import datetime
+# import logging
 
 from MoinMoin import util, wikiutil
 from MoinMoin.Page import Page, get_middleware_type
+from MoinMoin.storage import MoinWikiMiddleware
 from MoinMoin.logfile import editlog
 from MoinMoin import render_template
 
 _DAYS_SELECTION = [1, 2, 3, 7, 14, 30, 60, 90]
 _MAX_DAYS = 7
-_MAX_PAGENAME_LENGTH = 15 # 35
+_MAX_PAGENAME_LENGTH = 15  # 35
 _MAX_COMMENT_LENGTH = 20
 
 #############################################################################
-### RecentChanges Macro
+# RecentChanges Macro
 #############################################################################
 
-Dependencies = ["time"] # ["user", "pages", "pageparams", "bookmark"]
+Dependencies = ["time"]  # ["user", "pages", "pageparams", "bookmark"]
+
 
 def format_comment(request, line):
     comment = line.comment
@@ -51,10 +53,11 @@ def format_comment(request, line):
 
     return wikiutil.make_breakable(comment, _MAX_COMMENT_LENGTH)
 
+
 def format_page_edits(macro, lines, bookmark_usecs):
     request = macro.request
     _ = request.getText
-    d = {} # dict for passing stuff to theme
+    d = {}  # dict for passing stuff to theme
     line = lines[0]
     pagename = line.pagename
     rev = int(line.rev)
@@ -99,8 +102,9 @@ def format_page_edits(macro, lines, bookmark_usecs):
     d['icon_html'] = html_link
     d['pagelink_html'] = page.link_to(request, text=page.split_title(force=force_split))
     if hasattr(line, 'entry'):
-        d['pagelink_html'] += render_template('_dayone_footer.html',\
-                            entry=line.entry, request=request)
+        d['pagelink_html'] += render_template(
+            '_dayone_footer.html',
+            entry=line.entry, request=request)
 
     # print time of change
     d['time_html'] = None
@@ -119,7 +123,7 @@ def format_page_edits(macro, lines, bookmark_usecs):
             counters = {}
             for idx in range(len(lines)):
                 name = lines[idx].getEditor(request)
-                if not name in counters:
+                if name not in counters:
                     counters[name] = []
                 counters[name].append(idx+1)
             poslist = [(v, k) for k, v in counters.items()]
@@ -145,8 +149,10 @@ def format_page_edits(macro, lines, bookmark_usecs):
 
     return request.theme.recentchanges_entry(d)
 
+
 def cmp_lines(first, second):
     return cmp(first[0], second[0])
+
 
 def print_abandoned(macro):
     request = macro.request
@@ -235,34 +241,35 @@ def print_abandoned(macro):
     output.append(request.theme.recentchanges_footer(d))
     return ''.join(output)
 
+
 def logchain(request, log1):
-
-    # inv_map = {}
-    # for k, v in request.cfg.routes.iteritems():
-    #     inv_map[v] = inv_map.get(v, [])
-    #     inv_map[v].append(k)
-
-    logs = [(log1, '__wiki__'),] # default wiki recent-logs
+    logs = [
+        # (log1, '__wiki__'),  # default wiki recent-logs
+    ]
     for name, storage in request.storage.iteritems():
-        data = storage.history(request)
-        # name_filter_re = inv_map[name]
-        logs.append((data,name))
+        if isinstance(storage, MoinWikiMiddleware):
+            data = log1
+        else:
+            data = storage.history(request)
+        logs.append(
+            (data, name)
+        )
 
     # build a bucket for each log-generator
     next_data = []
     for a in range(len(logs)):
         next_data.append(None)
 
-    # from datetime import datetime
     while True:
-        # odt1 = datetime.now()
+        # odt1 = time.time()
         for idx, packed in enumerate(logs):
             s, storage_name = packed
             try:
-                if next_data[idx]: pass
+                if next_data[idx]:
+                    pass
                 else:
                     # odt = datetime.now()
-                    next_data[idx] = next(s) # if next_data is None, get the next data using 'next(s)'
+                    next_data[idx] = next(s)  # if next_data is None, get the next data using 'next(s)'
                     # print(storage_name, datetime.now()-odt)
                     while True:
                         mt = get_middleware_type(request, next_data[idx].pagename)
@@ -273,24 +280,25 @@ def logchain(request, log1):
                             next_data[idx] = next(s)
             except StopIteration:
                 next_data[idx] = None
-        # odt2 = datetime.now()
-        if not max(next_data): # all is None
+        # odt2 = time.time()
+        if not max(next_data):  # all is None
             break
 
         # pick the latest log among storages
         times = []
         for s in next_data:
-            if s is None: times.append(0)
+            if s is None:
+                times.append(0)
             else:
                 times.append(request.user.getTime(wikiutil.version2timestamp(s.ed_time_usecs))[:5])
-        # odt3 = datetime.now()
+        # odt3 = time.time()
 
         mtime = max(times)
         idx = times.index(mtime)
         ydata = next_data[idx]
-        next_data[idx] = None # invalidate
+        next_data[idx] = None  # invalidate
 
-        # print(odt2-odt1, odt3-odt2, datetime.now()-odt3)
+        # print(odt2-odt1, odt3-odt2, time.time()-odt3)
         yield ydata
 
 
@@ -334,6 +342,7 @@ def logchain2(request, log1, log2):
         else:
             n1_next = None
             yield n1
+
 
 def macro_RecentChanges(macro, abandoned=False):
     # handle abandoned keyword
@@ -461,7 +470,7 @@ def macro_RecentChanges(macro, abandoned=False):
             # logging.warn('LOG[%s] OVER %d LIMIT HAS BEEN STRIPPED' % (str(this_day), LIMIT))
             break
         else:
-            line_count +=1
+            line_count += 1
 
     else:
         if len(pages) > 0:
@@ -486,10 +495,7 @@ def macro_RecentChanges(macro, abandoned=False):
             for p in pages:
                 output.append(format_page_edits(macro, p, bookmark_usecs))
 
-
     d['rc_msg'] = msg
     output.append(request.theme.recentchanges_footer(d))
 
     return ''.join(output)
-
-
