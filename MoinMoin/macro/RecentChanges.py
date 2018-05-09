@@ -410,7 +410,7 @@ def macro_RecentChanges(macro, abandoned=False):
 
     # iter_commit of git is heavy. so set the limit.
     LIMIT = 0
-    for _, storage in request.storage.iteritems():
+    for _dummy, storage in request.storage.iteritems():
         if isinstance(storage, GitMiddleware):
             LIMIT = 30
             break
