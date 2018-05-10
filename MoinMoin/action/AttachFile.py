@@ -357,7 +357,12 @@ def _build_filelist(request, pagename, showheader, readonly, mime_type='*'):
         for file in files:
             mt = wikiutil.MimeType(filename=file)
             # fullpath = os.path.join(attach_dir, wikiutil.quoteWikinameFS(file))  # .encode(request.cfg.attachment_charset)
-            fullpath = os.path.join(attach_dir, file).encode(request.cfg.attachment_charset)
+            try:
+                fullpath = os.path.join(attach_dir, file).encode(request.cfg.attachment_charset)
+            except UnicodeDecodeError:
+                # import pdb; pdb.set_trace()
+                continue
+
             try:
                 st = os.stat(fullpath)
             except OSError:
