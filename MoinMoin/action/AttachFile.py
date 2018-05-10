@@ -353,7 +353,8 @@ def _build_filelist(request, pagename, showheader, readonly, mime_type='*'):
         may_write = request.user.may.write(pagename)
         may_delete = request.user.may.delete(pagename)
 
-        html.append(fmt.bullet_list(1))
+        # html.append(fmt.bullet_list(1))
+        html.append('<table>')
         for file in files:
             mt = wikiutil.MimeType(filename=file)
             # fullpath = os.path.join(attach_dir, wikiutil.quoteWikinameFS(file))  # .encode(request.cfg.attachment_charset)
@@ -418,12 +419,14 @@ def _build_filelist(request, pagename, showheader, readonly, mime_type='*'):
                 # archive).
                 logging.exception("An exception within zip file attachment handling occurred:")
 
-            html.append(fmt.listitem(1))
-            html.append("[%s]" % "&nbsp;| ".join(links))
-            html.append(" (%(fmtime)s, %(fsize)s KB) [[attachment:%(file)s]]" % parmdict)
-            html.append(fmt.listitem(0))
-        html.append(fmt.bullet_list(0))
-
+            # html.append(fmt.listitem(1))
+            html.append('<tr>')
+            html.append("<td>[%s]</td>" % "&nbsp;| ".join(links))
+            html.append("<td>%(fmtime)s</td><td>%(fsize)s KB</td><td>%(file)s</td>" % parmdict)
+            # html.append(fmt.listitem(0))
+            html.append('</tr>')
+        # html.append(fmt.bullet_list(0))
+        html.append('</table>')
     else:
         if showheader:
             html.append(fmt.paragraph(1))
