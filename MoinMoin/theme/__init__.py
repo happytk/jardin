@@ -1837,9 +1837,9 @@ var gui_editor_link_text = "%(text)s";
 
         # XXX maybe this should be removed completely. moin emits all attachments as <link rel="Appendix" ...>
         # and it is at least questionable if this fits into the original intent of rel="Appendix".
-        if pagename and request.user.may.read(pagename):
-            from MoinMoin.action import AttachFile
-            AttachFile.send_link_rel(request, pagename)
+        # if pagename and request.user.may.read(pagename):
+        #    from MoinMoin.action import AttachFile
+        #    AttachFile.send_link_rel(request, pagename)
 
         output.extend([
             '<link rel="Search" href="%s">\n' % request.href(page_find_page),

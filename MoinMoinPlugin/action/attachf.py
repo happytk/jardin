@@ -47,7 +47,7 @@ def get_attachments(pagename, request, attach_dir):
                 logging.warn('cannot get filestat:' + fullpath)
                 continue
             parmdict = {
-                'file': wikiutil.escape(file),
+                'file': file.decode('utf8'), # wikiutil.escape(file),
                 'fsize': "%.1f" % (float(st.st_size) / 1024),
                 'fmtime': request.user.getFormattedDateTime(st.st_mtime),
                 'ext': ext,
