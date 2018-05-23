@@ -61,8 +61,10 @@ sunlunar_data = ("1212122322121", "1212121221220", "1121121222120", #1881
                  "2122112112120", "2122141211212", "1221221212110",
                  "2121221221210", "2114121221221")                  #2049
 
+
 class DateError(Exception):
     pass
+
 
 def lun2sol(lyyyy, lmm, ldd, yundal=0):
 
@@ -73,7 +75,7 @@ def lun2sol(lyyyy, lmm, ldd, yundal=0):
     if lmm > 12 or lmm < 1 or ldd < 1:
         raise DateError
 
-    pyear = lyyyy - lboundyear;
+    pyear = lyyyy - lboundyear
     if sunlunar_data[pyear][12] == "0":
         if yundal == 1:
             raise DateError
@@ -94,11 +96,11 @@ def lun2sol(lyyyy, lmm, ldd, yundal=0):
             if int(sunlunar_data[pyear][lmm-1+after_yundal]) + 28 < ldd:
                 raise DateError
 
-    pyear = 0;
-    total_date = 0;
+    pyear = 0
+    total_date = 0
 
     if (lyyyy > lboundyear) and (lyyyy < uboundyear):
-        pyear = lyyyy - lboundyear;
+        pyear = lyyyy - lboundyear
         for i in range(pyear):
             for j in range(13):
                 total_date = total_date + int(sunlunar_data[i][j])
@@ -109,8 +111,8 @@ def lun2sol(lyyyy, lmm, ldd, yundal=0):
     else:
         gf_lun2sol = 0
 
-    pmonth = lmm - 1;
-    m2 = -1;
+    pmonth = lmm - 1
+    m2 = -1
 
     while 1:
         m2 = m2 + 1
@@ -228,33 +230,35 @@ def sol2lun(syyyy, smm, sdd):
 #############################################################################
 
 
-def getFullTimeLuna(aText,aTime):
-    year,month,day=aTime[0],aTime[1],aTime[2]
-    if len(aText)==2:
-        if aText<"%02d"%day:
-            month+=1
-        if month>12:
-            year,month=year+1,1
-        aText="%04d%02d"%(year,month)+aText
-    elif len(aText)==4:
-        if aText<"%02d%02d"%(month,day):
-            year+=1
-        aText="%04d"%year+aText
-    return time.strptime(aText,"%Y%m%d")
+def getFullTimeLuna(aText, aTime):
+    year, month, day = aTime[0], aTime[1], aTime[2]
+    if len(aText) == 2:
+        if aText < "%02d" % day:
+            month += 1
+        if month > 12:
+            year, month = year+1, 1
+        aText = "%04d%02d" % (year, month)+aText
+    elif len(aText) == 4:
+        if aText < "%02d%02d" % (month, day):
+            year += 1
+        aText = "%04d" % year+aText
+    return time.strptime(aText, "%Y%m%d")
 
-def getFullTime(aText,aTime):
-    year,month,day=aTime[0],aTime[1],aTime[2]
-    if len(aText)==2:
-        if aText<"%02d"%day:
-            month+=1
-        if month>12:
-            year,month=year+1,1
-        aText="%04d%02d"%(year,month)+aText
-    elif len(aText)==4:
-        if aText<"%02d%02d"%(month,day):
-            year+=1
-        aText="%04d"%year+aText
-    return time.strptime(aText,"%Y%m%d")
+
+def getFullTime(aText, aTime):
+    year, month, day = aTime[0], aTime[1], aTime[2]
+    if len(aText) == 2:
+        if aText < "%02d" % day:
+            month += 1
+        if month > 12:
+            year, month = year+1, 1
+        aText = "%04d%02d" % (year, month)+aText
+    elif len(aText) == 4:
+        if aText < "%02d%02d" % (month, day):
+            year += 1
+        aText = "%04d" % year+aText
+    return time.strptime(aText, "%Y%m%d")
+
 
 def execute(macro, text, args=""):
     convertLuna = False
@@ -269,25 +273,26 @@ def execute(macro, text, args=""):
         return u"<b>invalid argument count</b>"
 
     localtime = time.localtime()
-    localtime = localtime[0],localtime[1],localtime[2],0,0,0,0,0,0
+    localtime = localtime[0], localtime[1], localtime[2], 0, 0, 0, 0, 0, 0
 
-    if len(text) not in [2,4,8]: return u"<b>invalid date length</b>"
+    if len(text) not in [2, 4, 8]:
+        return u"<b>invalid date length</b>"
 
     if convertLuna:
-        today_luna = sol2lun(localtime[0],localtime[1],localtime[2])
-        today_luna = today_luna[0],today_luna[1],today_luna[2],0,0,0,0,0,0
-        ddayTuple=getFullTime(text,today_luna)
+        today_luna = sol2lun(localtime[0], localtime[1], localtime[2])
+        today_luna = today_luna[0], today_luna[1], today_luna[2], 0, 0, 0, 0, 0, 0
+        ddayTuple = getFullTime(text, today_luna)
         ddayTuple = lun2sol(ddayTuple[0], ddayTuple[1], ddayTuple[2])
-        ddayTuple = ddayTuple[0],ddayTuple[1],ddayTuple[2],0,0,0,0,0,0
+        ddayTuple = ddayTuple[0], ddayTuple[1], ddayTuple[2], 0, 0, 0, 0, 0, 0
     else:
-        ddayTuple=getFullTime(text,localtime)
+        ddayTuple = getFullTime(text, localtime)
 
-    timeDiff=(time.mktime(ddayTuple)-time.mktime(localtime))/86400
-    date=time.strftime("(%Y/%m/%d) ",ddayTuple)
-    if timeDiff >0:
+    timeDiff = (time.mktime(ddayTuple) - time.mktime(localtime)) / 86400
+    date = time.strftime("(%Y/%m/%d) ", ddayTuple)
+    if timeDiff > 0:
         msg = u'%d days left until %s' % (timeDiff, date)
-    elif timeDiff == 0 :
+    elif timeDiff == 0:
         msg = u'%s is TODAY' % date
     else:
-        msg = u'%d days have passed since %s.' % (abs(timeDiff), date)
+        msg = u'%d days have passed since %s.' % (abs(timeDiff) + 1, date)
     return msg
